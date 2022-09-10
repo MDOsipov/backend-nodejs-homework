@@ -5,6 +5,12 @@ export interface store {
     employee_number: number;
 }
 
+export interface employee {
+    id: number;
+    firstName: string;
+    lastName: string;
+}
+
 export interface systemError {
     code: number;
     message: string;
