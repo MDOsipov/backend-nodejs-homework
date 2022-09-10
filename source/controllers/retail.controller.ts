@@ -36,12 +36,18 @@ const getStoreById = async (req: Request, res: Response, next: NextFunction) => 
 
     if (isNaN(Number(sId))) {
         // TODO: Error handling
+        return res.status(400).json({
+            errorMessage: 'Input data is incorrect'
+        });
     }
 
     if (sId !== null && sId !== undefined) {
         id = parseInt(sId);
     } else {
         // TODO: Error handling
+        return res.status(400).json({
+            errorMessage: 'Input data is incorrect'
+        });
     }
 
     if (id > 0) {
@@ -74,6 +80,9 @@ const getStoreById = async (req: Request, res: Response, next: NextFunction) => 
     }
     else {
         // TODO: Error handling
+        return res.status(400).json({
+            errorMessage: 'Input number should be greater than zero!'
+        });
     }
 };
 
