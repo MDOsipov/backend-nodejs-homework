@@ -47,6 +47,40 @@ export class RetailService implements IRetailService {
         });
     }
 
+    public getStoreById(id: number): Promise<store> {
+        return new Promise<store>((resolve, reject) => {
+            const sql: SqlClient = require('msnodesqlv8');
+            const connectionString: string = DB_CONNECTION_STRING;
+            const query: string = Queries.storesById;
+            // Глянем запрос
+            console.log(query);
+            //
+            let result: store;
+
+            sql.open(connectionString, (connectionError: Error, connection: Connection) => {
+                if (connectionError) {
+                    reject(ErrorHelper.parseError(ErrorCodes.connectionError, General.DbconnectionError));
+                }
+                else {
+                    connection.query(`${query} ${id}`, (queryError: Error | undefined, queryResult: store[] | undefined) => {
+                        if (queryError) {
+                            reject(ErrorHelper.parseError(ErrorCodes.queryError, General.SqlQueryError));
+                        }
+                        else {
+                            if (queryResult !== undefined && queryResult.length === 1) {
+                                result = this.parseLocalStore(queryResult[0]);
+                            }
+                            else if (queryResult !== undefined && queryResult.length === 0) {
+                                reject(ErrorHelper.parseError(ErrorCodes.noContent, General.TableNoContentError));
+                            }
+                            resolve(result);
+                        }
+                    });
+                }
+            });
+        });
+    }
+
     private parseLocalStore(local: localStore): store {
         return {
             id: local.id,
