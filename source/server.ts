@@ -28,7 +28,7 @@ router.use((req, res, next) => {
 });
 
 /** Routes */
-router.use('/', retailRoutes.router);
+router.use('/general', retailRoutes.router);
 
 
 /** Error handling */

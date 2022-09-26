@@ -1,11 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import { ErrorCodes } from '../constants';
 import { systemError, store, employee } from '../entities';
+import { AppError } from '../enums';
+import { RequestHelper } from '../helpers/request.helper';
+import { ResponseHelper } from '../helpers/response.helper';
+import { ErrorService } from '../services/error.service';
 import { RetailService } from '../services/retail.service';
 
-const retailService: RetailService = new RetailService();
+const errorService: ErrorService = new ErrorService;
+const retailService: RetailService = new RetailService(errorService);
 
-const getStore = async (req: Request, res: Response, next: NextFunction) => {
+const getStores = async (req: Request, res: Response, next: NextFunction) => {
     retailService.getStore()
         .then((result: store[]) => {
             return res.status(200).json({
@@ -13,133 +18,59 @@ const getStore = async (req: Request, res: Response, next: NextFunction) => {
             });
         })
         .catch((error: systemError) => {
-            switch (error.code) {
-                case ErrorCodes.connectionError:
-                    return res.status(408).json({
-                        errorMessage: error.message
-                    });
-                case ErrorCodes.queryError:
-                    return res.status(406).json({
-                        errorMessage: error.message
-                    });
-                default:
-                    return res.status(400).json({
-                        errorMessage: error.message
-                    });
-            }
+            return ResponseHelper.handleError(res, error);
         });
 };
 
 const getStoreById = async (req: Request, res: Response, next: NextFunction) => {
-    let id: number = -1;
-    const sId: string = req.params.id;
 
-    if (isNaN(Number(sId))) {
-        // TODO: Error handling
-        return res.status(400).json({
-            errorMessage: 'Input data is incorrect'
-        });
-    }
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
 
-    if (sId !== null && sId !== undefined) {
-        id = parseInt(sId);
-    } else {
-        // TODO: Error handling
-        return res.status(400).json({
-            errorMessage: 'Input data is incorrect'
-        });
-    }
-
-    if (id > 0) {
-        retailService.getStoreById(id)
-            .then((result: store) => {
-                return res.status(200).json({
-                    result
+    if (typeof numericParamOrError === "number") {
+        if (numericParamOrError > 0) {
+            retailService.getStoreById(numericParamOrError)
+                .then((result: store) => {
+                    return res.status(200).json({
+                        result
+                    });
+                })
+                .catch((error: systemError) => {
+                    return ResponseHelper.handleError(res, error);
                 });
-            })
-            .catch((error: systemError) => {
-                switch (error.code) {
-                    case ErrorCodes.connectionError:
-                        return res.status(408).json({
-                            errorMessage: error.message
-                        });
-                    case ErrorCodes.queryError:
-                        return res.status(406).json({
-                            errorMessage: error.message
-                        });
-                    case ErrorCodes.noContent:
-                        return res.status(204).json({
-                            errorMessage: error.message
-                        })
-                    default:
-                        return res.status(400).json({
-                            errorMessage: error.message
-                        });
-                }
-            });
+        }
+        else {
+            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+        }
     }
     else {
-        // TODO: Error handling
-        return res.status(400).json({
-            errorMessage: 'Input number should be greater than zero!'
-        });
+        return ResponseHelper.handleError(res, numericParamOrError)
     }
 };
 
 const getEmployeesByStoreId = async (req: Request, res: Response, next: NextFunction) => {
-    let id: number = -1;
-    const sId: string = req.params.id;
 
-    if (isNaN(Number(sId))) {
-        // TODO: Error handling
-        return res.status(400).json({
-            errorMessage: 'Input data is incorrect'
-        });
-    }
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
 
-    if (sId !== null && sId !== undefined) {
-        id = parseInt(sId);
-    } else {
-        // TODO: Error handling
-        return res.status(400).json({
-            errorMessage: 'Input data is incorrect'
-        });
-    }
-
-    if (id > 0) {
-        retailService.getEmployeesByStoreId(id)
-            .then((result: employee[]) => {
-                return res.status(200).json({
-                    message: result
+    if (typeof numericParamOrError === "number") {
+        if (numericParamOrError > 0) {
+            retailService.getEmployeesByStoreId(numericParamOrError)
+                .then((result: employee[]) => {
+                    return res.status(200).json({
+                        result
+                    });
+                })
+                .catch((error: systemError) => {
+                    return ResponseHelper.handleError(res, error);
                 });
-            })
-            .catch((error: systemError) => {
-                switch (error.code) {
-                    case ErrorCodes.connectionError:
-                        return res.status(408).json({
-                            errorMessage: error.message
-                        });
-                    case ErrorCodes.queryError:
-                        return res.status(406).json({
-                            errorMessage: error.message
-                        });
-                    case ErrorCodes.noContent:
-                        return res.status(204).json({
-                            errorMessage: error.message
-                        })
-                    default:
-                        return res.status(400).json({
-                            errorMessage: error.message
-                        });
-                }
-            });
+        }
+        else {
+            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+        }
     }
     else {
-        // TODO: Error handling
-        return res.status(400).json({
-            errorMessage: 'Input number should be greater than zero!'
-        });
+        return ResponseHelper.handleError(res, numericParamOrError)
     }
+
 };
 
-export default { getStore, getStoreById, getEmployeesByStoreId };
+export default { getStores, getStoreById, getEmployeesByStoreId };

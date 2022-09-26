@@ -1,3 +1,5 @@
+import { AppError } from "./enums";
+
 export interface store {
     id: number;
     storeAddress: string;
@@ -12,6 +14,7 @@ export interface employee {
 }
 
 export interface systemError {
+    key: AppError
     code: number;
     message: string;
 }

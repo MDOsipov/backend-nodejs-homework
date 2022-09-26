@@ -1,7 +1,8 @@
 import { Connection, SqlClient, Error } from 'msnodesqlv8';
-import { employee, store } from '../entities';
+import { employee, store, systemError } from '../entities';
 import { ErrorCodes, General, DB_CONNECTION_STRING, Queries } from '../constants';
-import { ErrorHelper } from '../helpers/error.helpers';
+import { SqlHelper } from '../helpers/sql.helper';
+import { ErrorService } from './error.service';
 
 interface localStore {
     id: number;
@@ -23,101 +24,55 @@ interface IRetailService {
 }
 
 export class RetailService implements IRetailService {
+
+    constructor(private errorService: ErrorService) { };
+
     public getStore(): Promise<store[]> {
         return new Promise<store[]>((resolve, reject) => {
-            const sql: SqlClient = require('msnodesqlv8');
-            const connectionString: string = DB_CONNECTION_STRING;
-            const query: string = Queries.stores;
             const result: store[] = [];
 
-            sql.open(connectionString, (connectionError: Error, connection: Connection) => {
-                if (connectionError) {
-                    reject(ErrorHelper.parseError(ErrorCodes.connectionError, General.DbconnectionError));
-                }
-                else {
-                    connection.query(query, (querryError: Error | undefined, queryResult: localStore[] | undefined) => {
-                        if (querryError) {
-                            reject(ErrorHelper.parseError(ErrorCodes.queryError, General.SqlQueryError));
-                        }
-                        else {
-                            if (queryResult !== undefined) {
-                                queryResult.forEach(store => {
-                                    result.push(
-                                        this.parseLocalStore(store)
-                                    )
-                                })
-                            }
-                            resolve(result);
-                        }
+            SqlHelper.executeQueryArrayResult<localStore>(this.errorService, Queries.stores)
+                .then((queryResult: localStore[]) => {
+                    queryResult.forEach(store => {
+                        result.push(this.parseLocalStore(store));
                     });
-                }
-            });
+                    resolve(result);
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
         });
     }
 
     public getStoreById(id: number): Promise<store> {
         return new Promise<store>((resolve, reject) => {
-            const sql: SqlClient = require('msnodesqlv8');
-            const connectionString: string = DB_CONNECTION_STRING;
-            const query: string = Queries.storesById;
-            let result: store;
 
-            sql.open(connectionString, (connectionError: Error, connection: Connection) => {
-                if (connectionError) {
-                    reject(ErrorHelper.parseError(ErrorCodes.connectionError, General.DbconnectionError));
-                }
-                else {
-                    connection.query(`${query} ${id}`, (queryError: Error | undefined, queryResult: localStore[] | undefined) => {
-                        if (queryError) {
-                            reject(ErrorHelper.parseError(ErrorCodes.queryError, General.SqlQueryError));
-                        }
-                        else {
-                            if (queryResult !== undefined && queryResult.length === 1) {
-                                result = this.parseLocalStore(queryResult[0]);
-                            }
-                            else if (queryResult !== undefined && queryResult.length === 0) {
-                                reject(ErrorHelper.parseError(ErrorCodes.noContent, General.TableNoContentError));
-                            }
-                            resolve(result);
-                        }
-                    });
-                }
-            });
+            SqlHelper.executeQuerySingleResult<localStore>(this.errorService, Queries.storesById, id)
+                .then((queryResult: localStore) => {
+                    resolve(this.parseLocalStore(queryResult));
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
         });
     }
 
     public getEmployeesByStoreId(id: number): Promise<employee[]> {
         return new Promise<employee[]>((resolve, reject) => {
-            const sql: SqlClient = require('msnodesqlv8');
-            const connectionString: string = DB_CONNECTION_STRING;
-            const query: string = Queries.employeeByStoreId;
+
             const result: employee[] = [];
 
-            sql.open(connectionString, (connectionError: Error, connection: Connection) => {
-                if (connectionError) {
-                    reject(ErrorHelper.parseError(ErrorCodes.connectionError, General.DbconnectionError));
-                }
-                else {
-                    connection.query(`${query} ${id}`, (queryError: Error | undefined, queryResult: localEmployee[] | undefined) => {
-                        if (queryError) {
-                            reject(ErrorHelper.parseError(ErrorCodes.queryError, General.SqlQueryError));
-                        }
-                        else {
-                            if (queryResult !== undefined && queryResult.length > 0) {
-                                queryResult.forEach(employee => {
-                                    result.push(
-                                        this.parseLocalEmployee(employee)
-                                    )
-                                })
-                                resolve(result);
-                            }
-                            else {
-                                reject(ErrorHelper.parseError(ErrorCodes.noContent, General.TableNoContentError));
-                            }
-                        }
+            SqlHelper.executeQueryArrayResult<employee>(this.errorService, Queries.employeeByStoreId, id)
+                .then((queryResult: localEmployee[]) => {
+                    queryResult.forEach(employee => {
+                        result.push(this.parseLocalEmployee(employee));
                     });
-                }
-            });
+                    resolve(result);
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+
         })
     }
 
