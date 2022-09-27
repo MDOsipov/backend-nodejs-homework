@@ -21,5 +21,10 @@ export class Queries {
     public static stores: string = "SELECT * FROM store";
     public static storesById: string = "SELECT * FROM store WHERE id = ?";
     public static employeeByStoreId: string = 'SELECT e.id, e.first_name as firstName, e.last_name as lastName FROM store s INNER JOIN store_to_employee_to_position sep ON s.id = sep.store_id INNER JOIN employee e ON e.id = sep.employee_id WHERE s.id = ?';
+
     public static updateStoreById: string = 'UPDATE store SET store_address = ?, director_id = ? WHERE id = ?';
+    public static SelectIdentity: string = "SELECT SCOPE_IDENTITY() AS id";
+
+    public static AddStore: string = 'INSERT INTO store (store_address, director_id) VALUES (?, ?)';
+
 }

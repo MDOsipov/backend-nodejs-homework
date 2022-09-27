@@ -1,14 +1,16 @@
 import { AppError } from "./enums";
 
-export interface Store {
+export interface entityWithId {
     id: number;
+}
+
+export interface Store extends entityWithId {
     storeAddress: string;
     directorId: number;
     employeeNumber: number;
 }
 
-export interface Employee {
-    id: number;
+export interface Employee extends entityWithId {
     firstName: string;
     lastName: string;
 }
@@ -18,3 +20,4 @@ export interface systemError {
     code: number;
     message: string;
 }
+

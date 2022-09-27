@@ -1,5 +1,5 @@
 import { Connection, SqlClient, Error } from 'msnodesqlv8';
-import { Employee, Store, systemError } from '../entities';
+import { Employee, entityWithId, Store, systemError } from '../entities';
 import { ErrorCodes, General, DB_CONNECTION_STRING, Queries } from '../constants';
 import { SqlHelper } from '../helpers/sql.helper';
 import { ErrorService } from './error.service';
@@ -81,6 +81,18 @@ export class RetailService implements IRetailService {
             SqlHelper.executeQueryNoResult(this.errorService, Queries.updateStoreById, false, store.storeAddress, store.directorId, store.id)
                 .then(() => {
                     resolve(store);
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
+    public addStore(store: Store): Promise<Store> {
+        return new Promise<Store>((resolve, reject) => {
+            SqlHelper.createNewStore(this.errorService, Queries.AddStore, store, store.storeAddress, store.directorId)
+                .then((queryResult: entityWithId) => {
+                    resolve(queryResult as Store);
                 })
                 .catch((error: systemError) => {
                     reject(error);

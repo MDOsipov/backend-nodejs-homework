@@ -1,7 +1,7 @@
 import { SqlClient, Connection, Error, Query } from "msnodesqlv8";
-import { systemError } from "../entities";
+import { systemError, entityWithId } from "../entities";
 import { reject } from "underscore";
-import { DB_CONNECTION_STRING } from "../constants";
+import { DB_CONNECTION_STRING, Queries } from "../constants";
 import { AppError } from "../enums";
 import { ErrorService } from "../services/error.service";
 
@@ -108,6 +108,44 @@ export class SqlHelper {
                 .catch((error: systemError) => {
                     reject(error);
                 });
+        });
+    }
+
+    public static createNewStore(errorService: ErrorService, query: string, original: entityWithId, ...params: (string | number)[]): Promise<entityWithId> {
+        return new Promise<entityWithId>((resolve, reject) => {
+            SqlHelper.SqlConnection(errorService)
+                .then((connection: Connection) => {
+                    const queries: string[] = [query, Queries.SelectIdentity]
+                    const executeQuery: string = queries.join(';');
+
+                    let execution_counter: number = 0;
+
+                    connection.query(executeQuery, params, (queryError: Error | undefined, queryResult: entityWithId[] | undefined) => {
+                        if (queryError) {
+                            reject(errorService.getError(AppError.QueryError));
+                        }
+                        else {
+                            execution_counter++;
+                            if (execution_counter === queries.length) {
+                                if (queryResult !== undefined) {
+                                    if (queryResult.length === 1) {
+                                        original.id = (queryResult[0] as any).id;
+                                        resolve(original);
+                                    }
+                                    else {
+                                        reject(errorService.getError(AppError.QueryError));
+                                    }
+                                }
+                                else {
+                                    reject(errorService.getError(AppError.QueryError));
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                })
         });
     }
 }

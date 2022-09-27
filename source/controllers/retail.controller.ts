@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ErrorCodes } from '../constants';
+import { ErrorCodes, NON_EXISTENT_ID } from '../constants';
 import { systemError, Store, Employee } from '../entities';
 import { AppError } from '../enums';
 import { RequestHelper } from '../helpers/request.helper';
@@ -105,4 +105,21 @@ const updateStoreById = async (req: Request, res: Response, next: NextFunction) 
     }
 }
 
-export default { getStores, getStoreById, getEmployeesByStoreId, updateStoreById };
+const addStore = async (req: Request, res: Response, next: NextFunction) => {
+    const body: Store = req.body;
+
+    retailService.addStore({
+        id: NON_EXISTENT_ID,
+        storeAddress: body.storeAddress,
+        directorId: body.directorId,
+        employeeNumber: body.employeeNumber
+    })
+        .then((result: Store) => {
+            return res.status(200).json(result);
+        })
+        .catch((error: systemError) => {
+            return ResponseHelper.handleError(res, error);
+        })
+}
+
+export default { getStores, getStoreById, getEmployeesByStoreId, updateStoreById, addStore };
