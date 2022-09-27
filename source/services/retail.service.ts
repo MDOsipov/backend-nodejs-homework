@@ -3,6 +3,7 @@ import { Employee, entityWithId, Store, systemError } from '../entities';
 import { ErrorCodes, General, DB_CONNECTION_STRING, Queries } from '../constants';
 import { SqlHelper } from '../helpers/sql.helper';
 import { ErrorService } from './error.service';
+import { Status } from '../enums';
 
 interface localStore {
     id: number;
@@ -31,7 +32,7 @@ export class RetailService implements IRetailService {
         return new Promise<Store[]>((resolve, reject) => {
             const result: Store[] = [];
 
-            SqlHelper.executeQueryArrayResult<localStore>(this.errorService, Queries.stores)
+            SqlHelper.executeQueryArrayResult<localStore>(this.errorService, Queries.stores, Status.Active)
                 .then((queryResult: localStore[]) => {
                     queryResult.forEach(store => {
                         result.push(this.parseLocalStore(store));
@@ -47,7 +48,7 @@ export class RetailService implements IRetailService {
     public getStoreById(id: number): Promise<Store> {
         return new Promise<Store>((resolve, reject) => {
 
-            SqlHelper.executeQuerySingleResult<localStore>(this.errorService, Queries.storesById, id)
+            SqlHelper.executeQuerySingleResult<localStore>(this.errorService, Queries.storesById, id, Status.Active)
                 .then((queryResult: localStore) => {
                     resolve(this.parseLocalStore(queryResult));
                 })
@@ -62,7 +63,7 @@ export class RetailService implements IRetailService {
 
             const result: Employee[] = [];
 
-            SqlHelper.executeQueryArrayResult<Employee>(this.errorService, Queries.employeeByStoreId, id)
+            SqlHelper.executeQueryArrayResult<Employee>(this.errorService, Queries.employeeByStoreId, id, Status.Active)
                 .then((queryResult: localEmployee[]) => {
                     queryResult.forEach(employee => {
                         result.push(this.parseLocalEmployee(employee));
@@ -78,7 +79,7 @@ export class RetailService implements IRetailService {
 
     public updateStoreById(store: Store): Promise<Store> {
         return new Promise<Store>((resolve, reject) => {
-            SqlHelper.executeQueryNoResult(this.errorService, Queries.updateStoreById, false, store.storeAddress, store.directorId, store.id)
+            SqlHelper.executeQueryNoResult(this.errorService, Queries.updateStoreById, false, store.storeAddress, store.directorId, store.id, Status.Active)
                 .then(() => {
                     resolve(store);
                 })
@@ -90,9 +91,21 @@ export class RetailService implements IRetailService {
 
     public addStore(store: Store): Promise<Store> {
         return new Promise<Store>((resolve, reject) => {
-            SqlHelper.createNewStore(this.errorService, Queries.AddStore, store, store.storeAddress, store.directorId)
+            SqlHelper.createNewStore(this.errorService, Queries.AddStore, store, store.storeAddress, store.directorId, Status.Active)
                 .then((queryResult: entityWithId) => {
                     resolve(queryResult as Store);
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
+    public deleteStoreById(id: number): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            SqlHelper.executeQueryNoResult<Store>(this.errorService, Queries.DeleteStoreById, true, Status.NotActive, id, Status.Active)
+                .then(() => {
+                    resolve();
                 })
                 .catch((error: systemError) => {
                     reject(error);
@@ -108,6 +121,7 @@ export class RetailService implements IRetailService {
             employeeNumber: local.employee_number
         }
     }
+
 
     private parseLocalEmployee(local: localEmployee): Employee {
         return {

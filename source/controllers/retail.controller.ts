@@ -122,4 +122,26 @@ const addStore = async (req: Request, res: Response, next: NextFunction) => {
         })
 }
 
-export default { getStores, getStoreById, getEmployeesByStoreId, updateStoreById, addStore };
+const deleteStoreById = async (req: Request, res: Response, next: NextFunction) => {
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
+
+    if (typeof numericParamOrError === "number") {
+        if (numericParamOrError > 0) {
+            retailService.deleteStoreById(numericParamOrError)
+                .then(() => {
+                    return res.sendStatus(200);
+                })
+                .catch((error: systemError) => {
+                    return ResponseHelper.handleError(res, error);
+                });
+        }
+        else {
+            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+        }
+    }
+    else {
+        return ResponseHelper.handleError(res, numericParamOrError)
+    }
+}
+
+export default { getStores, getStoreById, getEmployeesByStoreId, updateStoreById, addStore, deleteStoreById };
