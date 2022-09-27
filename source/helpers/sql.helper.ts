@@ -80,4 +80,34 @@ export class SqlHelper {
         });
     }
 
+    public static executeQueryNoResult<T>(errorService: ErrorService, query: string, ignoreNoRowsAffected: boolean, ...params: (string | number)[]): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            console.log(query, params);
+            SqlHelper.SqlConnection(errorService)
+                .then((connection: Connection) => {
+                    const q: Query = connection.query(query, params, (queryError: Error | undefined, queryResult: T[] | undefined) => {
+                        if (queryError) {
+                            switch (queryError.code) {
+                                case 547:
+                                    reject(errorService.getError(AppError.DeletionConflict));
+                                    break;
+                                default:
+                                    reject(errorService.getError(AppError.QueryError));
+                                    break;
+                            }
+                        }
+                    });
+                    q.on('rowcount', (rowCount: number) => {
+                        if (!ignoreNoRowsAffected && rowCount === 0) {
+                            reject(errorService.getError(AppError.NoData));
+                            return;
+                        }
+                        resolve();
+                    });
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
 }

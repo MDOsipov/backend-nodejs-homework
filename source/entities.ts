@@ -1,13 +1,13 @@
 import { AppError } from "./enums";
 
-export interface store {
+export interface Store {
     id: number;
     storeAddress: string;
-    director_id: number;
-    employee_number: number;
+    directorId: number;
+    employeeNumber: number;
 }
 
-export interface employee {
+export interface Employee {
     id: number;
     firstName: string;
     lastName: string;
