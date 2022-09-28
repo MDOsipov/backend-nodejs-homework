@@ -16,6 +16,7 @@ export class General {
 
 export const DB_CONNECTION_STRING: string = "server=.;Database=retail;Trusted_Connection=Yes;Driver={SQL Server Native Client 11.0}";
 export const NON_EXISTENT_ID: number = -1;
+export const TOKENSECRET: string = "17a28e4a-f599-4a76-9974-06325b96b2a6";
 
 export class Queries {
     public static stores: string = "SELECT * FROM store WHERE status_id = ?";
@@ -27,4 +28,7 @@ export class Queries {
 
     public static AddStore: string = 'INSERT INTO store (store_address, director_id, status_id) VALUES (?, ?, ?)';
     public static DeleteStoreById: string = 'UPDATE store SET status_id = ? WHERE id = ? AND status_id = ?';
+
+    public static GetUserById: string = 'SELECT id, password, role_id FROM [user] WHERE login = ?';
+
 }

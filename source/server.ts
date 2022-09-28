@@ -3,6 +3,7 @@ import http from 'http';
 import express, { Express } from 'express';
 import morgan from 'morgan';
 import retailRoutes from './routes/retail.routes';
+import authenticationRoutes from './routes/authentication.routes';
 
 const router: Express = express();
 
@@ -29,6 +30,7 @@ router.use((req, res, next) => {
 
 /** Routes */
 router.use('/general', retailRoutes.router);
+router.use('/auth', authenticationRoutes.router);
 
 
 /** Error handling */
