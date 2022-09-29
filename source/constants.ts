@@ -28,7 +28,7 @@ export class Queries {
     public static SelectIdentity: string = "SELECT SCOPE_IDENTITY() AS id";
 
     public static AddStore: string = 'INSERT INTO store (store_address, director_id, status_id, create_date, update_date, create_user, update_user) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    public static DeleteStoreById: string = 'UPDATE store SET status_id = ? WHERE id = ? AND status_id = ?';
+    public static DeleteStoreById: string = 'UPDATE store SET status_id = ?, update_date = ?, update_user = ? WHERE id = ? AND status_id = ?';
 
     public static GetUserById: string = 'SELECT id, password, role_id FROM [user] WHERE login = ?';
 

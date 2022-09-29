@@ -106,7 +106,8 @@ export class RetailService implements IRetailService {
 
     public deleteStoreById(id: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            SqlHelper.executeQueryNoResult<Store>(this.errorService, Queries.DeleteStoreById, true, Status.NotActive, id, Status.Active)
+            const updateDate: Date = new Date();
+            SqlHelper.executeQueryNoResult<Store>(this.errorService, Queries.DeleteStoreById, true, Status.NotActive, DateHelper.dateToString(updateDate), DEF_USER_ID, id, Status.Active)
                 .then(() => {
                     resolve();
                 })
