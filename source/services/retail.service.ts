@@ -1,9 +1,10 @@
 import { Connection, SqlClient, Error } from 'msnodesqlv8';
 import { Employee, entityWithId, Store, systemError } from '../entities';
-import { ErrorCodes, General, DB_CONNECTION_STRING, Queries } from '../constants';
+import { ErrorCodes, General, DB_CONNECTION_STRING, Queries, DEF_USER_ID } from '../constants';
 import { SqlHelper } from '../helpers/sql.helper';
 import { ErrorService } from './error.service';
 import { Status } from '../enums';
+import { DateHelper } from '../helpers/date.helper';
 
 interface localStore {
     id: number;
@@ -79,7 +80,8 @@ export class RetailService implements IRetailService {
 
     public updateStoreById(store: Store): Promise<Store> {
         return new Promise<Store>((resolve, reject) => {
-            SqlHelper.executeQueryNoResult(this.errorService, Queries.updateStoreById, false, store.storeAddress, store.directorId, store.id, Status.Active)
+            const updateDate: Date = new Date();
+            SqlHelper.executeQueryNoResult(this.errorService, Queries.updateStoreById, false, store.storeAddress, store.directorId, DateHelper.dateToString(updateDate), DEF_USER_ID, store.id, Status.Active)
                 .then(() => {
                     resolve(store);
                 })
@@ -91,7 +93,8 @@ export class RetailService implements IRetailService {
 
     public addStore(store: Store): Promise<Store> {
         return new Promise<Store>((resolve, reject) => {
-            SqlHelper.createNewStore(this.errorService, Queries.AddStore, store, store.storeAddress, store.directorId, Status.Active)
+            const createDate: Date = new Date();
+            SqlHelper.createNewStore(this.errorService, Queries.AddStore, store, store.storeAddress, store.directorId, Status.Active, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), DEF_USER_ID, DEF_USER_ID)
                 .then((queryResult: entityWithId) => {
                     resolve(queryResult as Store);
                 })
