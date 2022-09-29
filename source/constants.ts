@@ -31,5 +31,5 @@ export class Queries {
     public static DeleteStoreById: string = 'UPDATE store SET status_id = ?, update_date = ?, update_user = ? WHERE id = ? AND status_id = ?';
 
     public static GetUserById: string = 'SELECT id, password, role_id FROM [user] WHERE login = ?';
-
+    public static AddUser: string = 'INSERT INTO [user] (first_name, last_name, login, password, create_date, update_date, create_user_id, update_user_id, status_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
 }
