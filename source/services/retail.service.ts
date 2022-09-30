@@ -94,7 +94,7 @@ export class RetailService implements IRetailService {
     public addStore(store: Store): Promise<Store> {
         return new Promise<Store>((resolve, reject) => {
             const createDate: Date = new Date();
-            SqlHelper.createNewStore(this.errorService, Queries.AddStore, store, store.storeAddress, store.directorId, Status.Active, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), DEF_USER_ID, DEF_USER_ID)
+            SqlHelper.createNew(this.errorService, Queries.AddStore, store, store.storeAddress, store.directorId, Status.Active, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), DEF_USER_ID, DEF_USER_ID)
                 .then((queryResult: entityWithId) => {
                     resolve(queryResult as Store);
                 })

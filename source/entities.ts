@@ -37,3 +37,8 @@ export interface user extends entityWithId {
     password?: string;
 }
 
+export interface userRole extends entityWithId {
+    userId: number;
+    roleId: number;
+    storeId: number;
+}

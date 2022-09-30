@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import retailRoutes from './routes/retail.routes';
 import authenticationRoutes from './routes/authentication.routes';
 import userRoutes from './routes/user.routes';
+import userRoleRoutes from './routes/user.role.routes';
+
 
 const router: Express = express();
 
@@ -33,6 +35,8 @@ router.use((req, res, next) => {
 router.use('/general', retailRoutes.router);
 router.use('/auth', authenticationRoutes.router);
 router.use('/user', userRoutes.router);
+router.use('/userRole', userRoleRoutes.router);
+
 
 
 /** Error handling */

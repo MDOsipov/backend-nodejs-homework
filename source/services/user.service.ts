@@ -22,7 +22,7 @@ export class UserService implements IUserService {
     public add(user: user): Promise<user> {
         return new Promise<user>((resolve, reject) => {
             const createDate: Date = new Date();
-            SqlHelper.createNewStore(this.errorService, Queries.AddUser, user, user.firstName as string, user.lastName as string, user.login as string, user.password as string, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), DEF_USER_ID, DEF_USER_ID, Status.Active)
+            SqlHelper.createNew(this.errorService, Queries.AddUser, user, user.firstName as string, user.lastName as string, user.login as string, user.password as string, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), DEF_USER_ID, DEF_USER_ID, Status.Active)
                 .then((result: entityWithId) => {
                     resolve(result as user);
                 })

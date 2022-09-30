@@ -111,7 +111,7 @@ export class SqlHelper {
         });
     }
 
-    public static createNewStore(errorService: ErrorService, query: string, original: entityWithId, ...params: (string | number)[]): Promise<entityWithId> {
+    public static createNew(errorService: ErrorService, query: string, original: entityWithId, ...params: (string | number)[]): Promise<entityWithId> {
         return new Promise<entityWithId>((resolve, reject) => {
             SqlHelper.SqlConnection(errorService)
                 .then((connection: Connection) => {
