@@ -3,9 +3,9 @@ import controller from "../controllers/user.role.controller";
 
 export const router = express.Router();
 
-// router.get('/', controller.getUsers);
+router.get('/', controller.getUserRoles);
 router.post('/', controller.add);
-// router.put('/:id', controller.updateById);
-// router.delete('/:id', controller.deleteById);
+router.put('/:id', controller.updateUserRoleById);
+router.delete('/:id', controller.deleteUserRoleById);
 
 export default { router };

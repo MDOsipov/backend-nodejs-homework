@@ -37,4 +37,7 @@ export class Queries {
     public static GetUsers: string = 'SELECT id, first_name, last_name, login FROM [user] WHERE status_id = ?';
 
     public static AddUserRole: string = 'INSERT INTO user_to_role (user_id, role_id, store_id, create_date, update_date, create_user_id, update_user_id, status_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+    public static GetUserRoles: string = 'SELECT * FROM user_to_role WHERE status_id = ?';
+    public static DeleteUserRoleById: string = 'UPDATE user_to_role SET status_id = ? WHERE id = ? AND status_id = ?'
+
 }
