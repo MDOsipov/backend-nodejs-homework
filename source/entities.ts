@@ -1,4 +1,5 @@
 import { AppError, Role } from "./enums";
+import { Request, Response, NextFunction } from "express";
 
 export interface entityWithId {
     id: number;
@@ -29,6 +30,8 @@ export interface jwtUserData {
 export interface authenticationToken {
     userData: jwtUserData;
 }
+
+export interface AuthenticatedRequest extends Request, authenticationToken { }
 
 export interface user extends entityWithId {
     firstName?: string;
