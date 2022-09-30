@@ -31,8 +31,9 @@ export interface authenticationToken {
 }
 
 export interface user extends entityWithId {
-    firstName: string;
-    lastName: string;
+    firstName?: string;
+    lastName?: string;
     login?: string;
     password?: string;
 }
+
