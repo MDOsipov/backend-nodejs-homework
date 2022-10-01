@@ -113,6 +113,7 @@ export class SqlHelper {
 
     public static createNew(errorService: ErrorService, query: string, original: entityWithId, ...params: (string | number)[]): Promise<entityWithId> {
         return new Promise<entityWithId>((resolve, reject) => {
+            console.log(query, params);
             SqlHelper.SqlConnection(errorService)
                 .then((connection: Connection) => {
                     const queries: string[] = [query, Queries.SelectIdentity]

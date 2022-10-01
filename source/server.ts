@@ -6,6 +6,7 @@ import retailRoutes from './routes/retail.routes';
 import authenticationRoutes from './routes/authentication.routes';
 import userRoutes from './routes/user.routes';
 import userRoleRoutes from './routes/user.role.routes';
+import roleRoutes from './routes/role.routes';
 
 
 const router: Express = express();
@@ -36,6 +37,8 @@ router.use('/general', retailRoutes.router);
 router.use('/auth', authenticationRoutes.router);
 router.use('/user', userRoutes.router);
 router.use('/userRole', userRoleRoutes.router);
+router.use('/role', roleRoutes.router);
+
 
 
 

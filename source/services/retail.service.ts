@@ -127,7 +127,6 @@ export class RetailService implements IRetailService {
         }
     }
 
-
     private parseLocalEmployee(local: localEmployee): Employee {
         return {
             id: local.id,
