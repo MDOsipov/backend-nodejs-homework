@@ -80,6 +80,19 @@ export class UserRoleService implements IUserRoleService {
         })
     }
 
+    public deleteUserRoleByUserId(userIdToDelete: number, userId: number): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            const createDate: Date = new Date();
+            SqlHelper.executeQueryNoResult<userRole>(this.errorService, Queries.DeleteUserRoleByUserId, true, Status.NotActive, DateHelper.dateToString(createDate), userId, userIdToDelete, Status.Active)
+                .then(() => {
+                    resolve()
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                })
+        })
+    }
+
     private parseLocalUserRole(localUserRole: localUserRole): userRole {
         return {
             id: localUserRole.id,

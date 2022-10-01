@@ -92,4 +92,24 @@ const deleteUserRoleById = async (req: Request, res: Response, next: NextFunctio
     }
 }
 
-export default { add, getUserRoles, updateUserRoleById, deleteUserRoleById }
+const deleteUserRoleByUserId = async (req: Request, res: Response, next: NextFunction) => {
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
+
+    if (typeof numericParamOrError === "number") {
+        if (numericParamOrError > 0) {
+            userRoleService.deleteUserRoleByUserId(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
+                .then(() => { return res.sendStatus(200) })
+                .catch((error: systemError) => {
+                    ResponseHelper.handleError(res, error);
+                });
+        }
+        else {
+            ResponseHelper.handleError(res, errorService.getError(AppError.General));
+        }
+    }
+    else {
+        return ResponseHelper.handleError(res, numericParamOrError);
+    }
+}
+
+export default { add, getUserRoles, updateUserRoleById, deleteUserRoleById, deleteUserRoleByUserId }
