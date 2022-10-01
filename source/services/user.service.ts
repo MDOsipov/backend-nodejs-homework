@@ -1,12 +1,13 @@
-import { DEF_USER_ID, Queries } from "../constants";
-import { entityWithId, systemError, user } from "../entities";
+import { DEF_USER_ID, NON_EXISTENT_ID, Queries } from "../constants";
+import { entityWithId, systemError, user, userRole } from "../entities";
 import { Status } from "../enums";
 import { DateHelper } from "../helpers/date.helper";
 import { SqlHelper } from "../helpers/sql.helper";
 import { ErrorService } from "./error.service";
+import { UserRoleService } from "./user.role.service";
 
 export interface IUserService {
-    add(user: user, userId: number): Promise<user>;
+    add(user: user, role_id: number, userId: number): Promise<user>;
     updateById(user: user, userId: number): Promise<user>;
     deleteById(id: number, userId: number): Promise<void>;
     getUsers(): Promise<user[]>;
@@ -22,12 +23,21 @@ interface localUser {
 export class UserService implements IUserService {
     constructor(private errorService: ErrorService) { }
 
-    public add(user: user, userId: number): Promise<user> {
+    public add(user: user, roleId: number, userId: number): Promise<user> {
         return new Promise<user>((resolve, reject) => {
             const createDate: Date = new Date();
             SqlHelper.createNew(this.errorService, Queries.AddUser, user, user.firstName as string, user.lastName as string, user.login as string, user.password as string, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), userId, userId, Status.Active)
                 .then((result: entityWithId) => {
-                    resolve(result as user);
+                    if (roleId) {
+                        const userRoleService: UserRoleService = new UserRoleService(this.errorService);
+                        userRoleService.add({ id: NON_EXISTENT_ID, userId: (result as user).id, roleId: roleId }, userId)
+                            .then((result: userRole) => { })
+                            .catch((error: systemError) => reject(error))
+                        resolve(result as user);
+                    }
+                    else {
+                        resolve(result as user);
+                    }
                 })
                 .catch((error: systemError) => {
                     reject(error);

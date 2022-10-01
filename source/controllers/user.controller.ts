@@ -12,8 +12,12 @@ import { AppError } from "../enums";
 const errorService: ErrorService = new ErrorService();
 const userService: UserService = new UserService(errorService);
 
+interface userRole extends user {
+    role_id: number;
+}
+
 const add = async (req: Request, res: Response, next: NextFunction) => {
-    const body: user = req.body;
+    const body: userRole = req.body;
     const hashedPassword: string = bcrypt.hashSync(body.password as string);
 
     userService.add({
@@ -22,7 +26,7 @@ const add = async (req: Request, res: Response, next: NextFunction) => {
         lastName: body.lastName,
         login: body.login,
         password: hashedPassword
-    }, (req as AuthenticatedRequest).userData.userId)
+    }, body.role_id, (req as AuthenticatedRequest).userData.userId)
         .then((result: user) => {
             const returnedUser: user = {
                 id: result.id,

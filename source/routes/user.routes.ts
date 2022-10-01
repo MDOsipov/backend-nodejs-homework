@@ -2,6 +2,7 @@ import express from "express";
 import controller from "../controllers/user.controller";
 import { Role } from "../enums";
 import middleware from "../middleware/auth.middleware";
+import userRoleController from "../controllers/user.role.controller";
 
 export const router = express.Router();
 
