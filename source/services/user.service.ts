@@ -53,10 +53,12 @@ export class UserService implements IUserService {
                 .then(() => {
                     if (roleId) {
                         const userRoleService: UserRoleService = new UserRoleService(this.errorService);
+                        userRoleService.deleteUserRoleByUserId(user.id, userId)
                         userRoleService.add({ id: NON_EXISTENT_ID, userId: user.id, roleId: roleId }, userId)
-                            .then((result: userRole) => { })
+                            .then(() => {
+                                resolve(user);
+                            })
                             .catch((error: systemError) => reject(error))
-                        resolve(user);
                     }
                     else {
                         resolve(user);
