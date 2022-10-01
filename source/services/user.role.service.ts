@@ -70,7 +70,7 @@ export class UserRoleService implements IUserRoleService {
     public deleteUserRoleById(id: number, userId: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             const createDate: Date = new Date();
-            SqlHelper.executeQueryNoResult<userRole>(this.errorService, Queries.DeleteUserRoleById, false, Status.NotActive, DateHelper.dateToString(createDate), userId, id, Status.Active)
+            SqlHelper.executeQueryNoResult<userRole>(this.errorService, Queries.DeleteUserRoleById, true, Status.NotActive, DateHelper.dateToString(createDate), userId, id, Status.Active)
                 .then(() => {
                     resolve()
                 })

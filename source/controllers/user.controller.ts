@@ -47,7 +47,7 @@ const updateById = async (req: Request, res: Response, next: NextFunction) => {
 
     if (typeof numericParamOrError === "number") {
         if (numericParamOrError > 0) {
-            const body: user = req.body;
+            const body: userRole = req.body;
             let hashedPassword: string = '';
             if (body.password) {
                 hashedPassword = bcrypt.hashSync(body.password as string);
@@ -57,7 +57,7 @@ const updateById = async (req: Request, res: Response, next: NextFunction) => {
                 firstName: body.firstName,
                 lastName: body.lastName,
                 password: hashedPassword !== '' ? hashedPassword : undefined
-            }, (req as AuthenticatedRequest).userData.userId)
+            }, body.role_id, (req as AuthenticatedRequest).userData.userId)
                 .then((result: user) => {
                     return res.status(200).json({
                         id: result.id,

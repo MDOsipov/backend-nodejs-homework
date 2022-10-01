@@ -8,7 +8,7 @@ import { UserRoleService } from "./user.role.service";
 
 export interface IUserService {
     add(user: user, role_id: number, userId: number): Promise<user>;
-    updateById(user: user, userId: number): Promise<user>;
+    updateById(user: user, roleId: number, userId: number): Promise<user>;
     deleteById(id: number, userId: number): Promise<void>;
     getUsers(): Promise<user[]>;
 }
@@ -45,13 +45,22 @@ export class UserService implements IUserService {
         });
     }
 
-    public updateById(user: user, userId: number): Promise<user> {
+    public updateById(user: user, roleId: number, userId: number): Promise<user> {
         return new Promise<user>((resolve, reject) => {
             const updateDate: Date = new Date();
             const UpdateUserByIdQuery: string = `UPDATE [user] SET first_name = ${(user.firstName ? "'" + user.firstName + "'" : 'first_name')}, last_name = ${(user.lastName ? "'" + user.lastName + "'" : "last_name")}, update_date = '${DateHelper.dateToString(updateDate)}', update_user_id = ${userId}, password = ${((user.password as string) ? "'" + (user.password as string) + "'" : 'password')} WHERE id = ${user.id} AND status_id = ${Status.Active}`;
             SqlHelper.executeQueryNoResult<user>(this.errorService, UpdateUserByIdQuery, false)
                 .then(() => {
-                    resolve(user);
+                    if (roleId) {
+                        const userRoleService: UserRoleService = new UserRoleService(this.errorService);
+                        userRoleService.add({ id: NON_EXISTENT_ID, userId: user.id, roleId: roleId }, userId)
+                            .then((result: userRole) => { })
+                            .catch((error: systemError) => reject(error))
+                        resolve(user);
+                    }
+                    else {
+                        resolve(user);
+                    }
                 })
                 .catch((error: systemError) => {
                     reject(error);
