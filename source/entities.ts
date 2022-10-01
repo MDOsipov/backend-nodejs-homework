@@ -43,7 +43,6 @@ export interface user extends entityWithId {
 export interface userRole extends entityWithId {
     userId: number;
     roleId: number;
-    storeId: number;
 }
 
 export interface roleEntity extends entityWithId {

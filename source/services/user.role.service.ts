@@ -18,7 +18,6 @@ export interface localUserRole {
     id: number;
     user_id: number;
     role_id: number;
-    store_id: number;
 }
 
 export class UserRoleService implements IUserRoleService {
@@ -44,7 +43,7 @@ export class UserRoleService implements IUserRoleService {
     public add(userRole: userRole, userId: number): Promise<userRole> {
         return new Promise<userRole>((resolve, reject) => {
             const createDate: Date = new Date();
-            SqlHelper.createNew(this.errorService, Queries.AddUserRole, userRole, userRole.userId, userRole.roleId, userRole.storeId, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), userId, userId, Status.Active)
+            SqlHelper.createNew(this.errorService, Queries.AddUserRole, userRole, userRole.userId, userRole.roleId, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), userId, userId, Status.Active)
                 .then((result: entityWithId) => {
                     resolve(result as userRole);
                 })
@@ -57,7 +56,7 @@ export class UserRoleService implements IUserRoleService {
     public updateUserRoleById(userRole: userRole, userId: number): Promise<userRole> {
         return new Promise<userRole>((resolve, reject) => {
             const updateDate: Date = new Date();
-            const UpdateUserByIdQuery: string = `UPDATE user_to_role SET user_id = ${(userRole.userId ? + userRole.userId : 'user_id')}, role_id = ${(userRole.roleId ? userRole.roleId : "role_id")}, store_id = ${(userRole.storeId ? + userRole.storeId : "store_id")}, update_date = '${DateHelper.dateToString(updateDate)}', update_user_id = ${userId}  WHERE id = ${userRole.id} AND status_id = ${Status.Active}`;
+            const UpdateUserByIdQuery: string = `UPDATE user_to_role SET user_id = ${(userRole.userId ? + userRole.userId : 'user_id')}, role_id = ${(userRole.roleId ? userRole.roleId : "role_id")}, update_date = '${DateHelper.dateToString(updateDate)}', update_user_id = ${userId}  WHERE id = ${userRole.id} AND status_id = ${Status.Active}`;
             SqlHelper.executeQueryNoResult<userRole>(this.errorService, UpdateUserByIdQuery, false)
                 .then(() => {
                     resolve(userRole);
@@ -85,8 +84,7 @@ export class UserRoleService implements IUserRoleService {
         return {
             id: localUserRole.id,
             userId: localUserRole.user_id,
-            roleId: localUserRole.role_id,
-            storeId: localUserRole.store_id
+            roleId: localUserRole.role_id
         }
     }
 }

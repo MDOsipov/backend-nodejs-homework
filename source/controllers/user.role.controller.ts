@@ -18,8 +18,7 @@ const add = async (req: Request, res: Response, next: NextFunction) => {
     userRoleService.add({
         id: NON_EXISTENT_ID,
         userId: body.userId,
-        roleId: body.roleId,
-        storeId: body.storeId
+        roleId: body.roleId
     }, (req as AuthenticatedRequest).userData.userId)
         .then((result: userRole) => {
             return res.status(200).json({
@@ -53,8 +52,7 @@ const updateUserRoleById = async (req: Request, res: Response, next: NextFunctio
             userRoleService.updateUserRoleById({
                 id: numericParamOrError,
                 userId: body.userId,
-                roleId: body.roleId,
-                storeId: body.storeId
+                roleId: body.roleId
             }, (req as AuthenticatedRequest).userData.userId)
                 .then((result: userRole) => {
                     return res.status(200).json({
