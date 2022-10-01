@@ -78,10 +78,10 @@ export class RetailService implements IRetailService {
         });
     }
 
-    public updateStoreById(store: Store): Promise<Store> {
+    public updateStoreById(store: Store, userId: number): Promise<Store> {
         return new Promise<Store>((resolve, reject) => {
             const updateDate: Date = new Date();
-            SqlHelper.executeQueryNoResult(this.errorService, Queries.updateStoreById, false, store.storeAddress, store.directorId, DateHelper.dateToString(updateDate), DEF_USER_ID, store.id, Status.Active)
+            SqlHelper.executeQueryNoResult(this.errorService, Queries.updateStoreById, false, store.storeAddress, store.directorId, DateHelper.dateToString(updateDate), userId, store.id, Status.Active)
                 .then(() => {
                     resolve(store);
                 })
@@ -91,10 +91,10 @@ export class RetailService implements IRetailService {
         });
     }
 
-    public addStore(store: Store): Promise<Store> {
+    public addStore(store: Store, userId: number): Promise<Store> {
         return new Promise<Store>((resolve, reject) => {
             const createDate: Date = new Date();
-            SqlHelper.createNew(this.errorService, Queries.AddStore, store, store.storeAddress, store.directorId, Status.Active, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), DEF_USER_ID, DEF_USER_ID)
+            SqlHelper.createNew(this.errorService, Queries.AddStore, store, store.storeAddress, store.directorId, Status.Active, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), userId, userId)
                 .then((queryResult: entityWithId) => {
                     resolve(queryResult as Store);
                 })
@@ -104,10 +104,10 @@ export class RetailService implements IRetailService {
         });
     }
 
-    public deleteStoreById(id: number): Promise<void> {
+    public deleteStoreById(id: number, userId: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             const updateDate: Date = new Date();
-            SqlHelper.executeQueryNoResult<Store>(this.errorService, Queries.DeleteStoreById, true, Status.NotActive, DateHelper.dateToString(updateDate), DEF_USER_ID, id, Status.Active)
+            SqlHelper.executeQueryNoResult<Store>(this.errorService, Queries.DeleteStoreById, true, Status.NotActive, DateHelper.dateToString(updateDate), userId, id, Status.Active)
                 .then(() => {
                     resolve();
                 })

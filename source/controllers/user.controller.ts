@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express"
-import { systemError, user } from "../entities";
+import { AuthenticatedRequest, systemError, user } from "../entities";
 import bcrypt from "bcryptjs";
 import { ErrorService } from "../services/error.service";
 import { UserService } from "../services/user.service";
@@ -22,7 +22,7 @@ const add = async (req: Request, res: Response, next: NextFunction) => {
         lastName: body.lastName,
         login: body.login,
         password: hashedPassword
-    })
+    }, (req as AuthenticatedRequest).userData.userId)
         .then((result: user) => {
             const returnedUser: user = {
                 id: result.id,
@@ -53,7 +53,7 @@ const updateById = async (req: Request, res: Response, next: NextFunction) => {
                 firstName: body.firstName,
                 lastName: body.lastName,
                 password: hashedPassword !== '' ? hashedPassword : undefined
-            })
+            }, (req as AuthenticatedRequest).userData.userId)
                 .then((result: user) => {
                     return res.status(200).json({
                         id: result.id,
@@ -79,7 +79,7 @@ const deleteById = async (req: Request, res: Response, next: NextFunction) => {
 
     if (typeof numericParamOrError === "number") {
         if (numericParamOrError > 0) {
-            userService.deleteById(numericParamOrError)
+            userService.deleteById(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
                 .then(() => { return res.sendStatus(200) })
                 .catch((error: systemError) => {
                     ResponseHelper.handleError(res, error);

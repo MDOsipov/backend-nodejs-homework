@@ -6,7 +6,10 @@ import { SqlHelper } from "../helpers/sql.helper";
 import { ErrorService } from "./error.service";
 
 export interface IUserService {
-    add(user: user): Promise<user>;
+    add(user: user, userId: number): Promise<user>;
+    updateById(user: user, userId: number): Promise<user>;
+    deleteById(id: number, userId: number): Promise<void>;
+    getUsers(): Promise<user[]>;
 }
 
 interface localUser {
@@ -19,10 +22,10 @@ interface localUser {
 export class UserService implements IUserService {
     constructor(private errorService: ErrorService) { }
 
-    public add(user: user): Promise<user> {
+    public add(user: user, userId: number): Promise<user> {
         return new Promise<user>((resolve, reject) => {
             const createDate: Date = new Date();
-            SqlHelper.createNew(this.errorService, Queries.AddUser, user, user.firstName as string, user.lastName as string, user.login as string, user.password as string, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), DEF_USER_ID, DEF_USER_ID, Status.Active)
+            SqlHelper.createNew(this.errorService, Queries.AddUser, user, user.firstName as string, user.lastName as string, user.login as string, user.password as string, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), userId, userId, Status.Active)
                 .then((result: entityWithId) => {
                     resolve(result as user);
                 })
@@ -32,10 +35,10 @@ export class UserService implements IUserService {
         });
     }
 
-    public updateById(user: user): Promise<user> {
+    public updateById(user: user, userId: number): Promise<user> {
         return new Promise<user>((resolve, reject) => {
             const updateDate: Date = new Date();
-            const UpdateUserByIdQuery: string = `UPDATE [user] SET first_name = ${(user.firstName ? "'" + user.firstName + "'" : 'first_name')}, last_name = ${(user.lastName ? "'" + user.lastName + "'" : "last_name")}, update_date = '${DateHelper.dateToString(updateDate)}', update_user_id = ${DEF_USER_ID}, password = ${((user.password as string) ? "'" + (user.password as string) + "'" : 'password')} WHERE id = ${user.id} AND status_id = ${Status.Active}`;
+            const UpdateUserByIdQuery: string = `UPDATE [user] SET first_name = ${(user.firstName ? "'" + user.firstName + "'" : 'first_name')}, last_name = ${(user.lastName ? "'" + user.lastName + "'" : "last_name")}, update_date = '${DateHelper.dateToString(updateDate)}', update_user_id = ${userId}, password = ${((user.password as string) ? "'" + (user.password as string) + "'" : 'password')} WHERE id = ${user.id} AND status_id = ${Status.Active}`;
             SqlHelper.executeQueryNoResult<user>(this.errorService, UpdateUserByIdQuery, false)
                 .then(() => {
                     resolve(user);
@@ -46,9 +49,10 @@ export class UserService implements IUserService {
         })
     }
 
-    public deleteById(id: number): Promise<void> {
+    public deleteById(id: number, userId: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            SqlHelper.executeQueryNoResult<user>(this.errorService, Queries.DeleteUserById, false, Status.NotActive, id, Status.Active)
+            const updateDate: Date = new Date();
+            SqlHelper.executeQueryNoResult<user>(this.errorService, Queries.DeleteUserById, false, Status.NotActive, DateHelper.dateToString(updateDate), userId, id, Status.Active)
                 .then(() => {
                     resolve()
                 })

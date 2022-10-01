@@ -7,10 +7,10 @@ import { SqlHelper } from "../helpers/sql.helper";
 import { ErrorService } from "./error.service";
 
 export interface IUserRoleService {
-    add(userRole: userRole): Promise<userRole>;
+    add(userRole: userRole, userId: number): Promise<userRole>;
     getUserRoles(): Promise<userRole[]>;
-    updateUserRoleById(userRole: userRole): Promise<userRole>;
-    deleteUserRoleById(id: number): Promise<void>;
+    updateUserRoleById(userRole: userRole, userId: number): Promise<userRole>;
+    deleteUserRoleById(id: number, userId: number): Promise<void>;
 }
 
 
@@ -41,10 +41,10 @@ export class UserRoleService implements IUserRoleService {
         })
     }
 
-    public add(userRole: userRole): Promise<userRole> {
+    public add(userRole: userRole, userId: number): Promise<userRole> {
         return new Promise<userRole>((resolve, reject) => {
             const createDate: Date = new Date();
-            SqlHelper.createNew(this.errorService, Queries.AddUserRole, userRole, userRole.userId, userRole.roleId, userRole.storeId, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), DEF_USER_ID, DEF_USER_ID, Status.Active)
+            SqlHelper.createNew(this.errorService, Queries.AddUserRole, userRole, userRole.userId, userRole.roleId, userRole.storeId, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), userId, userId, Status.Active)
                 .then((result: entityWithId) => {
                     resolve(result as userRole);
                 })
@@ -54,10 +54,10 @@ export class UserRoleService implements IUserRoleService {
         })
     }
 
-    public updateUserRoleById(userRole: userRole): Promise<userRole> {
+    public updateUserRoleById(userRole: userRole, userId: number): Promise<userRole> {
         return new Promise<userRole>((resolve, reject) => {
             const updateDate: Date = new Date();
-            const UpdateUserByIdQuery: string = `UPDATE user_to_role SET user_id = ${(userRole.userId ? + userRole.userId : 'user_id')}, role_id = ${(userRole.roleId ? userRole.roleId : "role_id")}, store_id = ${(userRole.storeId ? + userRole.storeId : "store_id")}, update_date = '${DateHelper.dateToString(updateDate)}', update_user_id = ${DEF_USER_ID}  WHERE id = ${userRole.id} AND status_id = ${Status.Active}`;
+            const UpdateUserByIdQuery: string = `UPDATE user_to_role SET user_id = ${(userRole.userId ? + userRole.userId : 'user_id')}, role_id = ${(userRole.roleId ? userRole.roleId : "role_id")}, store_id = ${(userRole.storeId ? + userRole.storeId : "store_id")}, update_date = '${DateHelper.dateToString(updateDate)}', update_user_id = ${userId}  WHERE id = ${userRole.id} AND status_id = ${Status.Active}`;
             SqlHelper.executeQueryNoResult<userRole>(this.errorService, UpdateUserByIdQuery, false)
                 .then(() => {
                     resolve(userRole);
@@ -68,9 +68,10 @@ export class UserRoleService implements IUserRoleService {
         })
     }
 
-    public deleteUserRoleById(id: number): Promise<void> {
+    public deleteUserRoleById(id: number, userId: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            SqlHelper.executeQueryNoResult<userRole>(this.errorService, Queries.DeleteUserRoleById, false, Status.NotActive, id, Status.Active)
+            const createDate: Date = new Date();
+            SqlHelper.executeQueryNoResult<userRole>(this.errorService, Queries.DeleteUserRoleById, false, Status.NotActive, DateHelper.dateToString(createDate), userId, id, Status.Active)
                 .then(() => {
                     resolve()
                 })

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express"
-import { systemError, user, userRole } from "../entities";
+import { AuthenticatedRequest, systemError, user, userRole } from "../entities";
 import bcrypt from "bcryptjs";
 import { ErrorService } from "../services/error.service";
 import { UserRoleService } from "../services/user.role.service";
@@ -20,7 +20,7 @@ const add = async (req: Request, res: Response, next: NextFunction) => {
         userId: body.userId,
         roleId: body.roleId,
         storeId: body.storeId
-    })
+    }, (req as AuthenticatedRequest).userData.userId)
         .then((result: userRole) => {
             return res.status(200).json({
                 result
@@ -55,7 +55,7 @@ const updateUserRoleById = async (req: Request, res: Response, next: NextFunctio
                 userId: body.userId,
                 roleId: body.roleId,
                 storeId: body.storeId
-            })
+            }, (req as AuthenticatedRequest).userData.userId)
                 .then((result: userRole) => {
                     return res.status(200).json({
                         result
@@ -79,7 +79,7 @@ const deleteUserRoleById = async (req: Request, res: Response, next: NextFunctio
 
     if (typeof numericParamOrError === "number") {
         if (numericParamOrError > 0) {
-            userRoleService.deleteUserRoleById(numericParamOrError)
+            userRoleService.deleteUserRoleById(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
                 .then(() => { return res.sendStatus(200) })
                 .catch((error: systemError) => {
                     ResponseHelper.handleError(res, error);
