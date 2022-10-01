@@ -81,7 +81,8 @@ export class RetailService implements IRetailService {
     public updateStoreById(store: Store, userId: number): Promise<Store> {
         return new Promise<Store>((resolve, reject) => {
             const updateDate: Date = new Date();
-            SqlHelper.executeQueryNoResult(this.errorService, Queries.updateStoreById, false, store.storeAddress, store.directorId, DateHelper.dateToString(updateDate), userId, store.id, Status.Active)
+            const updateStoreById: string = `UPDATE store SET store_address = ${store.storeAddress ? "'" + store.storeAddress + "'" : 'store_address'}, director_id = ${store.directorId ? store.directorId : 'director_id'}, update_date = '${DateHelper.dateToString(updateDate)}',  update_user = ${userId} WHERE id = ${store.id} AND status_id = ${Status.Active}`;
+            SqlHelper.executeQueryNoResult(this.errorService, updateStoreById, false)
                 .then(() => {
                     resolve(store);
                 })
