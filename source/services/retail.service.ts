@@ -21,8 +21,7 @@ interface localEmployee {
 
 interface IRetailService {
     getStore(): Promise<Store[]>;
-    getStoreById(id: number): Promise<Store>;
-    getEmployeesByStoreId(id: number): Promise<Employee[]>;
+    getStoreById(id: number, userId: number): Promise<Store>;
 }
 
 export class RetailService implements IRetailService {
@@ -46,7 +45,7 @@ export class RetailService implements IRetailService {
         });
     }
 
-    public getStoreById(id: number): Promise<Store> {
+    public getStoreById(id: number, userId: number): Promise<Store> {
         return new Promise<Store>((resolve, reject) => {
 
             SqlHelper.executeQuerySingleResult<localStore>(this.errorService, Queries.storesById, id, Status.Active)
@@ -56,25 +55,6 @@ export class RetailService implements IRetailService {
                 .catch((error: systemError) => {
                     reject(error);
                 });
-        });
-    }
-
-    public getEmployeesByStoreId(id: number): Promise<Employee[]> {
-        return new Promise<Employee[]>((resolve, reject) => {
-
-            const result: Employee[] = [];
-
-            SqlHelper.executeQueryArrayResult<Employee>(this.errorService, Queries.employeeByStoreId, id, Status.Active)
-                .then((queryResult: localEmployee[]) => {
-                    queryResult.forEach(employee => {
-                        result.push(this.parseLocalEmployee(employee));
-                    });
-                    resolve(result);
-                })
-                .catch((error: systemError) => {
-                    reject(error);
-                });
-
         });
     }
 

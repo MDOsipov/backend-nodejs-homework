@@ -22,7 +22,6 @@ export const DEF_USER_ID: number = 1;
 export class Queries {
     public static stores: string = "SELECT * FROM store WHERE status_id = ?";
     public static storesById: string = "SELECT * FROM store WHERE id = ? AND status_id = ?";
-    public static employeeByStoreId: string = 'SELECT e.id, e.first_name as firstName, e.last_name as lastName FROM store s INNER JOIN store_to_employee_to_position sep ON s.id = sep.store_id INNER JOIN employee e ON e.id = sep.employee_id WHERE s.id = ? AND e.status_id = ?';
 
     public static updateStoreById: string = 'UPDATE store SET store_address = ?, director_id = ?, update_date = ?,  update_user = ? WHERE id = ? AND status_id = ?';
     public static SelectIdentity: string = "SELECT SCOPE_IDENTITY() AS id";
@@ -50,5 +49,9 @@ export class Queries {
     public static AddRole: string = 'INSERT INTO role (role_name, create_date, update_date, create_user_id, update_user_id, status_id) VALUES (?, ?, ?, ?, ?, ?)';
     public static UpdateRoleById: string = 'UPDATE role SET role_name = ?, update_date = ?, update_user_id = ? WHERE id = ? AND status_id = ?';
     public static DeleteRoleById: string = 'UPDATE role SET status_id = ?, update_date = ?, update_user_id = ? WHERE id = ? AND status_id = ?';
+
+    public static employeeByStoreId: string = 'SELECT e.id, e.first_name as first_name, e.last_name as last_name FROM store s INNER JOIN store_to_employee_to_position sep ON s.id = sep.store_id INNER JOIN employee e ON e.id = sep.employee_id WHERE s.id = ? AND e.status_id = ?';
+    public static GetEmployees: string = 'SELECT id, first_name, last_name FROM employee WHERE status_id = ?';
+    public static GetEmployeeById: string = 'SELECT id, first_name, last_name FROM employee WHERE id = ? AND status_id = ?';
 
 }
