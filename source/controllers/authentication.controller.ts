@@ -13,7 +13,6 @@ interface localUser {
 const errorService: ErrorService = new ErrorService();
 const authenticationService: AuthenticationService = new AuthenticationService(errorService);
 
-
 const login = async (req: Request, res: Response, next: NextFunction) => {
     const user: localUser = req.body;
 

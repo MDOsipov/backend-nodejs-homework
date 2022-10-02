@@ -21,10 +21,15 @@ const verifyToken = (roles: Role[]) => (req: Request, res: Response, next: NextF
     try {
         token = token.substring("Bearer ".length);
         const decoded: string | JwtPayload = jwt.verify(token, TOKENSECRET);
-        if (roles.indexOf((decoded as jwtBase).userData.roleId) === -1) {
+
+        if (((decoded as jwtBase).userData.roleId).filter((elem: Role) => {
+            roles.includes(elem)
+        })) {
+            (req as AuthenticatedRequest).userData = (decoded as jwtBase).userData;
+        }
+        else {
             return res.sendStatus(401);
         }
-        (req as AuthenticatedRequest).userData = (decoded as jwtBase).userData;
     }
     catch (err) {
         return res.status(401).send('Invalid Token');

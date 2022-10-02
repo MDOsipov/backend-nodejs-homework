@@ -30,7 +30,11 @@ export class Queries {
     public static AddStore: string = 'INSERT INTO store (store_address, director_id, status_id, create_date, update_date, create_user, update_user) VALUES (?, ?, ?, ?, ?, ?, ?)';
     public static DeleteStoreById: string = 'UPDATE store SET status_id = ?, update_date = ?, update_user = ? WHERE id = ? AND status_id = ?';
 
-    public static GetUserById: string = 'SELECT u.id as id, u.password as password, ur.role_id as role_id FROM [user] u INNER JOIN user_to_role ur ON u.id = ur.user_id WHERE login = ?';
+    // Получить юзеров по введеному логину
+    public static GetUserByLogin: string = 'SELECT u.id as id, u.password as password, ur.role_id as role_id FROM [user] u INNER JOIN user_to_role ur ON u.id = ur.user_id WHERE login = ?';
+    // Получить все роли для определенного юзера
+    public static GetUserRolesByLogin: string = 'SELECT ur.role_id as role_id FROM [user] u INNER JOIN user_to_role ur ON u.id = ur.user_id WHERE login = ?';
+
     public static AddUser: string = 'INSERT INTO [user] (first_name, last_name, login, password, create_date, update_date, create_user_id, update_user_id, status_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
     public static UpdateUserById: string = 'UPDATE [user] SET first_name = ?, last_name = ?, update_date = ?, update_user_id = ?, password = ? WHERE id = ? AND status_id = ?';
     public static DeleteUserById: string = 'UPDATE [user] SET status_id = ?, update_date = ?, update_user_id = ? WHERE id = ? AND status_id = ?'

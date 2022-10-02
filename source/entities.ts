@@ -24,7 +24,7 @@ export interface systemError {
 
 export interface jwtUserData {
     userId: number;
-    roleId: Role;
+    roleId: Role[];
 }
 
 export interface authenticationToken {

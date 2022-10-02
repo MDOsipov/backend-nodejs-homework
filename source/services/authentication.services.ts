@@ -9,25 +9,25 @@ interface localUser extends entityWithId {
     password: string;
     role_id: Role;
 }
-
 interface IAuthenticationService {
     login(login: string, password: string): Promise<jwtUserData>;
 }
-
+interface localRole {
+    role_id: number;
+}
 export class AuthenticationService implements IAuthenticationService {
 
     constructor(private errorService: ErrorService) { }
 
     public login(login: string, password: string): Promise<jwtUserData> {
         return new Promise<jwtUserData>((resolve, reject) => {
-            SqlHelper.executeQuerySingleResult<localUser>(this.errorService, Queries.GetUserById, login)
+            SqlHelper.executeQuerySingleResult<localUser>(this.errorService, Queries.GetUserByLogin, login)
                 .then((user: localUser) => {
                     if (bcrypt.compareSync(password, user.password)) {
-                        const result: jwtUserData = {
-                            userId: user.id,
-                            roleId: user.role_id
-                        }
-                        resolve(result);
+                        SqlHelper.executeQueryArrayResult<localRole>(this.errorService, Queries.GetUserRolesByLogin, login)
+                            .then((result: localRole[]) => {
+                                resolve(this.parseLocalRoles(user.id, result));
+                            })
                     }
                     else {
                         reject(this.errorService.getError(AppError.NoData));
@@ -37,5 +37,16 @@ export class AuthenticationService implements IAuthenticationService {
                     reject(error);
                 });
         });
+    }
+
+    private parseLocalRoles(userId: number, localRoles: localRole[]): jwtUserData {
+        let result: jwtUserData = {
+            userId: userId,
+            roleId: []
+        }
+        localRoles.forEach((elem: localRole) => {
+            result.roleId.push(elem.role_id);
+        })
+        return result;
     }
 }
