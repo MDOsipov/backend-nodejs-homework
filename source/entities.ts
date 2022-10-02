@@ -45,6 +45,12 @@ export interface userRole extends entityWithId {
     roleId: number;
 }
 
+export interface EmployeePosition extends entityWithId {
+    employeeId: number;
+    positionId: number;
+    storeId: number;
+}
+
 export interface roleEntity extends entityWithId {
     roleName: string;
 }

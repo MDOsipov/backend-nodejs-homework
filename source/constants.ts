@@ -54,4 +54,8 @@ export class Queries {
     public static GetEmployees: string = 'SELECT id, first_name, last_name FROM employee WHERE status_id = ?';
     public static GetEmployeeById: string = 'SELECT id, first_name, last_name FROM employee WHERE id = ? AND status_id = ?';
 
+    public static GetEmployeePositions: string = 'SELECT id, employee_id, position_id, store_id FROM store_to_employee_to_position WHERE status_id = ?'
+    public static AddEmployeePosition: string = 'INSERT INTO store_to_employee_to_position (employee_id, position_id, store_id, create_date, update_date, create_user_id, update_user_id, status_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+
+
 }
