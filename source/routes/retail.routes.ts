@@ -5,10 +5,10 @@ import middleware from '../middleware/auth.middleware';
 const router = express.Router();
 
 router.get('/stores', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator]), controller.getStores);
-router.get('/store/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator]), controller.getStoreById);
-router.get('/employeesByStoreId/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator]), controller.getEmployeesByStoreId);
-router.put('/store/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator]), controller.updateStoreById);
+router.get('/store/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.getStoreById);
+router.get('/employeesByStoreId/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.getEmployeesByStoreId);
+router.put('/store/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.updateStoreById);
 router.post('/store/', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator]), controller.addStore);
-router.delete('/store/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator]), controller.deleteStoreById);
+router.delete('/store/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.deleteStoreById);
 
 export default { router };
