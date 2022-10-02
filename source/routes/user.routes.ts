@@ -6,9 +6,9 @@ import userRoleController from "../controllers/user.role.controller";
 
 export const router = express.Router();
 
-router.get('/', middleware.verifyToken([Role.Administrator, Role.RegularUser]), controller.getUsers);
-router.post('/', middleware.verifyToken([Role.Administrator]), controller.add);
-router.put('/:id', middleware.verifyToken([Role.Administrator]), controller.updateById);
-router.delete('/:id', middleware.verifyToken([Role.Administrator]), controller.deleteById);
+router.get('/', middleware.verifyToken([Role.Administrator, Role.AccessAdministrator]), controller.getUsers);
+router.post('/', middleware.verifyToken([Role.Administrator, Role.AccessAdministrator]), controller.add);
+router.put('/:id', middleware.verifyToken([Role.Administrator, Role.AccessAdministrator]), controller.updateById);
+router.delete('/:id', middleware.verifyToken([Role.Administrator, Role.AccessAdministrator]), controller.deleteById);
 
 export default { router };
