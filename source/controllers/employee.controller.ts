@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import e, { Request, Response, NextFunction } from 'express';
 import { ErrorCodes, NON_EXISTENT_ID } from '../constants';
 import { systemError, Store, Employee, AuthenticatedRequest } from '../entities';
 import { AppError } from '../enums';
@@ -125,4 +125,31 @@ const updateEmployeeById = async (req: Request, res: Response, next: NextFunctio
     }
 }
 
-export default { getEmployees, getEmployeesByStoreId, getEmployeeById, updateEmployeeById }
+const addEmployee = async (req: Request, res: Response, next: NextFunction) => {
+    const body: employeeWithPositionInStore = req.body;
+
+    employeeService.addEmployee({
+        id: NON_EXISTENT_ID,
+        firstName: body.firstName,
+        lastName: body.lastName
+    }, (req as AuthenticatedRequest).userData.userId)
+        .then((result: Employee) => {
+            if (body.positionId !== undefined && body.storeId !== undefined) {
+                employeePositionService.addEmployeePosition({
+                    id: NON_EXISTENT_ID,
+                    employeeId: result.id,
+                    positionId: body.positionId,
+                    storeId: body.storeId
+                }, (req as AuthenticatedRequest).userData.userId)
+                    .then(() => {
+                        return res.status(200).json(result);
+                    })
+            }
+            return res.status(200).json(result);
+        })
+        .catch((error: systemError) => {
+            return ResponseHelper.handleError(res, error);
+        })
+}
+
+export default { getEmployees, getEmployeesByStoreId, getEmployeeById, updateEmployeeById, addEmployee }

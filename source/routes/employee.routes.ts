@@ -8,8 +8,9 @@ router.get('/', middleware.verifyToken([Role.Administrator, Role.NetworkAdminist
 router.get('/employeesByStoreId/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.getEmployeesByStoreId);
 router.get('/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.getEmployeeById);
 router.put('/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.updateEmployeeById);
+router.post('/', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator]), controller.addEmployee);
 
-// router.post('/employee/', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator]), controller.addStore);
+
 // router.delete('/employee/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.deleteStoreById);
 
 export default { router };

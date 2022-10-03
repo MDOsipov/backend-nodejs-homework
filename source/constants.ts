@@ -53,6 +53,8 @@ export class Queries {
     public static employeeByStoreId: string = 'SELECT e.id, e.first_name as first_name, e.last_name as last_name FROM store s INNER JOIN store_to_employee_to_position sep ON s.id = sep.store_id INNER JOIN employee e ON e.id = sep.employee_id WHERE s.id = ? AND e.status_id = ?';
     public static GetEmployees: string = 'SELECT id, first_name, last_name FROM employee WHERE status_id = ?';
     public static GetEmployeeById: string = 'SELECT id, first_name, last_name FROM employee WHERE id = ? AND status_id = ?';
+    public static AddEmployee: string = 'INSERT INTO employee (first_name, last_name, create_date, update_date, create_user_id, update_user_id, status_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+
 
     public static GetEmployeePositions: string = 'SELECT id, employee_id, position_id, store_id FROM store_to_employee_to_position WHERE status_id = ?'
     public static AddEmployeePosition: string = 'INSERT INTO store_to_employee_to_position (employee_id, position_id, store_id, create_date, update_date, create_user_id, update_user_id, status_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';

@@ -14,6 +14,7 @@ interface localEmployee {
 
 interface IEmployeeService {
     getEmployees(): Promise<Employee[]>;
+    addEmployee(employee: Employee, userId: number): Promise<Employee>;
     // getStoreById(id: number, userId: number): Promise<Employee>;
     // getEmployeesByStoreId(id: number): Promise<Employee[]>;
 }
@@ -77,6 +78,19 @@ export class EmployeeService implements IEmployeeService {
             SqlHelper.executeQueryNoResult(this.errorService, updateEmployeeById, false)
                 .then(() => {
                     resolve(employee);
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
+    public addEmployee(employee: Employee, userId: number): Promise<Employee> {
+        return new Promise<Employee>((resolve, reject) => {
+            const createDate: Date = new Date();
+            SqlHelper.createNew(this.errorService, Queries.AddEmployee, employee, employee.firstName, employee.lastName, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), userId, userId, Status.Active)
+                .then((queryResult: entityWithId) => {
+                    resolve(queryResult as Employee);
                 })
                 .catch((error: systemError) => {
                     reject(error);
