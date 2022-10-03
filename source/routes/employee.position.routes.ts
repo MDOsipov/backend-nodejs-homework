@@ -6,11 +6,13 @@ const router = express.Router();
 
 router.get('/', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator]), controller.getEmployeePositions);
 router.post('/addEmployeePosition/', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator]), controller.addEmployeePosition);
+router.put('/updateEmployeePosition/', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.updateEmployeePositionByEmployeeIdAndStoreId);
+router.delete('/', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.deleteEmployeePositionByEmployeeIdAndStoreId);
+
+
 
 // router.get('/employeesByStoreId/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.getEmployeesByStoreId);
 // router.get('/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.getEmployeeById);
-// router.put('/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.updateEmployeeById);
 
-// router.delete('/employee/:id', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.deleteStoreById);
 
 export default { router };

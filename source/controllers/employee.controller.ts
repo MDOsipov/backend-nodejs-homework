@@ -6,12 +6,18 @@ import { RequestHelper } from '../helpers/request.helper';
 import { ResponseHelper } from '../helpers/response.helper';
 import { ErrorService } from '../services/error.service';
 import { EmployeeService } from '../services/employee.service';
+import { EmployeePositionService } from '../services/employee.position.service';
 
 
 
 const errorService: ErrorService = new ErrorService;
 const employeeService: EmployeeService = new EmployeeService(errorService);
+const employeePositionService: EmployeePositionService = new EmployeePositionService(errorService);
 
+interface employeeWithPositionInStore extends Employee {
+    positionId: number;
+    storeId: number;
+}
 
 const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     employeeService.getEmployees()
@@ -79,7 +85,7 @@ const updateEmployeeById = async (req: Request, res: Response, next: NextFunctio
 
     if (typeof numericParamOrError === "number") {
         if (numericParamOrError > 0) {
-            const body: Employee = req.body;
+            const body: employeeWithPositionInStore = req.body;
 
             employeeService.updateEmployeeById({
                 id: numericParamOrError,
@@ -87,9 +93,24 @@ const updateEmployeeById = async (req: Request, res: Response, next: NextFunctio
                 lastName: body.lastName
             }, (req as AuthenticatedRequest).userData.userId)
                 .then((result: Employee) => {
-                    return res.status(200).json({
-                        result
-                    });
+                    if (body.positionId !== undefined && body.storeId !== undefined) {
+                        employeePositionService.updateEmployeePositionByEmployeeIdAndStoreId({
+                            id: body.id,
+                            positionId: body.positionId,
+                            employeeId: numericParamOrError,
+                            storeId: body.storeId
+                        }, (req as AuthenticatedRequest).userData.userId)
+                            .then(() => {
+                                return res.status(200).json({
+                                    result: result
+                                })
+                            })
+                    }
+                    else {
+                        return res.status(200).json({
+                            result: result
+                        })
+                    }
                 })
                 .catch((error: systemError) => {
                     return ResponseHelper.handleError(res, error);

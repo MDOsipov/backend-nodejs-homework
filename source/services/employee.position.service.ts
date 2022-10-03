@@ -16,6 +16,7 @@ interface localEmployeePosition {
 interface IEmployeePositionService {
     getEmployeePositions(): Promise<EmployeePosition[]>;
     addEmployeePosition(employeePosition: EmployeePosition, userId: number): Promise<EmployeePosition>;
+    updateEmployeePositionByEmployeeIdAndStoreId(employeePosition: EmployeePosition, userId: number): Promise<void>;
     // getStoreById(id: number, userId: number): Promise<Employee>;
     // getEmployeesByStoreId(id: number): Promise<Employee[]>;
 }
@@ -47,6 +48,33 @@ export class EmployeePositionService implements IEmployeePositionService {
             SqlHelper.createNew(this.errorService, Queries.AddEmployeePosition, employeePosition, employeePosition.employeeId, employeePosition.positionId, employeePosition.storeId, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), userId, userId, Status.Active)
                 .then((queryResult: entityWithId) => {
                     resolve(queryResult as EmployeePosition);
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
+    public updateEmployeePositionByEmployeeIdAndStoreId(employeePosition: EmployeePosition, userId: number): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            const updateDate: Date = new Date();
+            const updateEmployeePosition: string = `UPDATE store_to_employee_to_position SET position_id = ${employeePosition.positionId ? employeePosition.positionId : 'position_id'}, update_date = '${DateHelper.dateToString(updateDate)}',  update_user_id = ${userId} WHERE employee_id = ${employeePosition.employeeId} AND store_id = ${employeePosition.storeId} AND status_id = ${Status.Active}`;
+            SqlHelper.executeQueryNoResult(this.errorService, updateEmployeePosition, true)
+                .then(() => {
+                    resolve();
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
+    public deleteEmployeePositionByEmployeeIdAndStoreId(employeeId: number, storeId: number, userId: number): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            const updateDate: Date = new Date();
+            SqlHelper.executeQueryNoResult<EmployeePosition>(this.errorService, Queries.DeleteEmployeePosition, true, Status.NotActive, DateHelper.dateToString(updateDate), userId, employeeId, storeId, Status.Active)
+                .then(() => {
+                    resolve();
                 })
                 .catch((error: systemError) => {
                     reject(error);
