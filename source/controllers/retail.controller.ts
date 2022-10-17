@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ErrorCodes, NON_EXISTENT_ID } from '../constants';
 import { systemError, Store, Employee, AuthenticatedRequest } from '../entities';
-import { AppError } from '../enums';
+import { AppError, Role } from '../enums';
 import { RequestHelper } from '../helpers/request.helper';
 import { ResponseHelper } from '../helpers/response.helper';
 import { ErrorService } from '../services/error.service';
@@ -25,25 +25,70 @@ const getStores = async (req: Request, res: Response, next: NextFunction) => {
 const getStoreById = async (req: Request, res: Response, next: NextFunction) => {
     const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
 
-    if (typeof numericParamOrError === "number") {
-        if (numericParamOrError > 0) {
-            retailService.getStoreById(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
-                .then((result: Store) => {
-                    return res.status(200).json({
-                        result
-                    });
-                })
-                .catch((error: systemError) => {
-                    return ResponseHelper.handleError(res, error);
+    if ((req as AuthenticatedRequest).userData.roleId.lastIndexOf(Role.StoreManager) != -1) {
+        console.log("Cp 1");
+        retailService.getStoresByEmployeeId((req as AuthenticatedRequest).userData.userId, (req as AuthenticatedRequest).userData.userId)
+            .then((result: Store[]) => {
+                console.log('Stores of employee:');
+                console.log(result);
+                const suitableStore: Store[] = result.filter((elem: Store) => {
+                    return elem.id == numericParamOrError;
                 });
-        }
-        else {
-            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
-        }
+                if (suitableStore.length == 0) {
+                    console.log("Cp 2");
+                    return res.sendStatus(401);
+                }
+                else {
+                    if (typeof numericParamOrError === "number") {
+                        if (numericParamOrError > 0) {
+                            retailService.getStoreById(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
+                                .then((result: Store) => {
+
+                                    return res.status(200).json({
+                                        result
+                                    });
+                                })
+                                .catch((error: systemError) => {
+                                    return ResponseHelper.handleError(res, error);
+                                });
+                        }
+                        else {
+                            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+                        }
+                    }
+                    else {
+                        return ResponseHelper.handleError(res, numericParamOrError)
+                    }
+                }
+            })
+            .catch((error: systemError) => {
+                return ResponseHelper.handleError(res, error);
+            })
     }
     else {
-        return ResponseHelper.handleError(res, numericParamOrError)
+        if (typeof numericParamOrError === "number") {
+            if (numericParamOrError > 0) {
+                retailService.getStoreById(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
+                    .then((result: Store) => {
+
+                        return res.status(200).json({
+                            result
+                        });
+                    })
+                    .catch((error: systemError) => {
+                        return ResponseHelper.handleError(res, error);
+                    });
+            }
+            else {
+                return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+            }
+        }
+        else {
+            return ResponseHelper.handleError(res, numericParamOrError)
+        }
     }
+
+
 };
 
 const getStoresByEmployeeId = async (req: Request, res: Response, next: NextFunction) => {
