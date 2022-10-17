@@ -1,18 +1,20 @@
 import e, { Request, Response, NextFunction } from 'express';
 import { ErrorCodes, NON_EXISTENT_ID } from '../constants';
 import { systemError, Store, Employee, AuthenticatedRequest } from '../entities';
-import { AppError } from '../enums';
+import { AppError, Role } from '../enums';
 import { RequestHelper } from '../helpers/request.helper';
 import { ResponseHelper } from '../helpers/response.helper';
 import { ErrorService } from '../services/error.service';
 import { EmployeeService } from '../services/employee.service';
 import { EmployeePositionService } from '../services/employee.position.service';
+import { RetailService } from '../services/retail.service';
 
 
 
 const errorService: ErrorService = new ErrorService;
 const employeeService: EmployeeService = new EmployeeService(errorService);
 const employeePositionService: EmployeePositionService = new EmployeePositionService(errorService);
+const retailService: RetailService = new RetailService(errorService);
 
 interface employeeWithPositionInStore extends Employee {
     positionId: number;
@@ -34,24 +36,58 @@ const getEmployees = async (req: Request, res: Response, next: NextFunction) => 
 const getEmployeesByStoreId = async (req: Request, res: Response, next: NextFunction) => {
     const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
 
-    if (typeof numericParamOrError === "number") {
-        if (numericParamOrError > 0) {
-            employeeService.getEmployeesByStoreId(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
-                .then((result: Employee[]) => {
-                    return res.status(200).json({
-                        result
-                    });
-                })
-                .catch((error: systemError) => {
-                    return ResponseHelper.handleError(res, error);
+    if ((req as AuthenticatedRequest).userData.roleId.lastIndexOf(Role.StoreManager) != -1) {
+        retailService.getStoresByUserId((req as AuthenticatedRequest).userData.userId, (req as AuthenticatedRequest).userData.userId)
+            .then((result: Store[]) => {
+                const suitableStore: Store[] = result.filter((elem: Store) => {
+                    return elem.id == numericParamOrError;
                 });
-        }
-        else {
-            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
-        }
+                if (suitableStore.length == 0) {
+                    return res.sendStatus(401);
+                }
+                else {
+                    if (typeof numericParamOrError === "number") {
+                        if (numericParamOrError > 0) {
+                            employeeService.getEmployeesByStoreId(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
+                                .then((result: Employee[]) => {
+                                    return res.status(200).json({
+                                        result
+                                    });
+                                })
+                                .catch((error: systemError) => {
+                                    return ResponseHelper.handleError(res, error);
+                                });
+                        }
+                        else {
+                            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+                        }
+                    }
+                    else {
+                        return ResponseHelper.handleError(res, numericParamOrError)
+                    }
+                }
+            })
     }
     else {
-        return ResponseHelper.handleError(res, numericParamOrError)
+        if (typeof numericParamOrError === "number") {
+            if (numericParamOrError > 0) {
+                employeeService.getEmployeesByStoreId(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
+                    .then((result: Employee[]) => {
+                        return res.status(200).json({
+                            result
+                        });
+                    })
+                    .catch((error: systemError) => {
+                        return ResponseHelper.handleError(res, error);
+                    });
+            }
+            else {
+                return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+            }
+        }
+        else {
+            return ResponseHelper.handleError(res, numericParamOrError)
+        }
     }
 };
 

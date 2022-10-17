@@ -26,16 +26,12 @@ const getStoreById = async (req: Request, res: Response, next: NextFunction) => 
     const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
 
     if ((req as AuthenticatedRequest).userData.roleId.lastIndexOf(Role.StoreManager) != -1) {
-        console.log("Cp 1");
-        retailService.getStoresByEmployeeId((req as AuthenticatedRequest).userData.userId, (req as AuthenticatedRequest).userData.userId)
+        retailService.getStoresByUserId((req as AuthenticatedRequest).userData.userId, (req as AuthenticatedRequest).userData.userId)
             .then((result: Store[]) => {
-                console.log('Stores of employee:');
-                console.log(result);
                 const suitableStore: Store[] = result.filter((elem: Store) => {
                     return elem.id == numericParamOrError;
                 });
                 if (suitableStore.length == 0) {
-                    console.log("Cp 2");
                     return res.sendStatus(401);
                 }
                 else {
@@ -43,7 +39,6 @@ const getStoreById = async (req: Request, res: Response, next: NextFunction) => 
                         if (numericParamOrError > 0) {
                             retailService.getStoreById(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
                                 .then((result: Store) => {
-
                                     return res.status(200).json({
                                         result
                                     });
@@ -119,32 +114,77 @@ const updateStoreById = async (req: Request, res: Response, next: NextFunction) 
 
     const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
 
-    if (typeof numericParamOrError === "number") {
-        if (numericParamOrError > 0) {
-            const store_body: Store = req.body;
-
-            retailService.updateStoreById({
-                id: numericParamOrError,
-                storeAddress: store_body.storeAddress,
-                directorId: store_body.directorId,
-                employeeNumber: store_body.employeeNumber
-            }, (req as AuthenticatedRequest).userData.userId)
-                .then((result: Store) => {
-                    return res.status(200).json({
-                        result
-                    });
-                })
-                .catch((error: systemError) => {
-                    return ResponseHelper.handleError(res, error);
+    if ((req as AuthenticatedRequest).userData.roleId.lastIndexOf(Role.StoreManager) != -1) {
+        retailService.getStoresByUserId((req as AuthenticatedRequest).userData.userId, (req as AuthenticatedRequest).userData.userId)
+            .then((result: Store[]) => {
+                const suitableStore: Store[] = result.filter((elem: Store) => {
+                    return elem.id == numericParamOrError;
                 });
-        }
-        else {
-            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
-        }
+                if (suitableStore.length == 0) {
+                    return res.sendStatus(401);
+                }
+                else {
+                    if (typeof numericParamOrError === "number") {
+                        if (numericParamOrError > 0) {
+                            const store_body: Store = req.body;
+
+                            retailService.updateStoreById({
+                                id: numericParamOrError,
+                                storeAddress: store_body.storeAddress,
+                                directorId: store_body.directorId,
+                                employeeNumber: store_body.employeeNumber
+                            }, (req as AuthenticatedRequest).userData.userId)
+                                .then((result: Store) => {
+                                    return res.status(200).json({
+                                        result
+                                    });
+                                })
+                                .catch((error: systemError) => {
+                                    return ResponseHelper.handleError(res, error);
+                                });
+                        }
+                        else {
+                            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+                        }
+                    }
+                    else {
+                        return ResponseHelper.handleError(res, numericParamOrError)
+                    }
+                }
+            })
+            .catch((error: systemError) => {
+                return ResponseHelper.handleError(res, error);
+            })
     }
     else {
-        return ResponseHelper.handleError(res, numericParamOrError)
+        if (typeof numericParamOrError === "number") {
+            if (numericParamOrError > 0) {
+                const store_body: Store = req.body;
+
+                retailService.updateStoreById({
+                    id: numericParamOrError,
+                    storeAddress: store_body.storeAddress,
+                    directorId: store_body.directorId,
+                    employeeNumber: store_body.employeeNumber
+                }, (req as AuthenticatedRequest).userData.userId)
+                    .then((result: Store) => {
+                        return res.status(200).json({
+                            result
+                        });
+                    })
+                    .catch((error: systemError) => {
+                        return ResponseHelper.handleError(res, error);
+                    });
+            }
+            else {
+                return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+            }
+        }
+        else {
+            return ResponseHelper.handleError(res, numericParamOrError)
+        }
     }
+
 }
 
 const addStore = async (req: Request, res: Response, next: NextFunction) => {

@@ -63,6 +63,23 @@ export class RetailService implements IRetailService {
         return new Promise<Store[]>((resolve, reject) => {
 
             let result: Store[] = []
+            SqlHelper.executeQueryArrayResult<localStore>(this.errorService, Queries.GetStoreByEmployeeId, employeeId, Status.Active)
+                .then((queryResult: localStore[]) => {
+                    queryResult.forEach((localStore: localStore) => {
+                        result.push(this.parseLocalStore(localStore));
+                    })
+                    resolve(result);
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
+    public getStoresByUserId(employeeId: number, userId: number): Promise<Store[]> {
+        return new Promise<Store[]>((resolve, reject) => {
+
+            let result: Store[] = []
             SqlHelper.executeQueryArrayResult<localStore>(this.errorService, Queries.GetStoreByUserId, employeeId, Status.Active)
                 .then((queryResult: localStore[]) => {
                     queryResult.forEach((localStore: localStore) => {
