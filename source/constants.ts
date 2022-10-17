@@ -21,6 +21,7 @@ export const DEF_USER_ID: number = 1;
 
 export class Queries {
     public static stores: string = "SELECT * FROM store WHERE status_id = ?";
+    public static GetStoreByEmployeeId: string = "SELECT s.id, s.store_address, s.director_id, s.employee_number FROM store s INNER JOIN store_to_employee_to_position sep ON s.id = sep.store_id INNER JOIN employee e ON sep.employee_id = e.id WHERE employee_id = ? AND sep.status_id = ?";
     public static storesById: string = "SELECT * FROM store WHERE id = ? AND status_id = ?";
 
     public static updateStoreById: string = 'UPDATE store SET store_address = ?, director_id = ?, update_date = ?,  update_user = ? WHERE id = ? AND status_id = ?';
@@ -34,10 +35,10 @@ export class Queries {
     // Получить все роли для определенного юзера
     public static GetUserRolesByLogin: string = 'SELECT ur.role_id as role_id FROM [user] u INNER JOIN user_to_role ur ON u.id = ur.user_id WHERE login = ?';
 
-    public static AddUser: string = 'INSERT INTO [user] (first_name, last_name, login, password, create_date, update_date, create_user_id, update_user_id, status_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    public static AddUser: string = 'INSERT INTO [user] (first_name, last_name, employee_id, login, password, create_date, update_date, create_user_id, update_user_id, status_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
     public static UpdateUserById: string = 'UPDATE [user] SET first_name = ?, last_name = ?, update_date = ?, update_user_id = ?, password = ? WHERE id = ? AND status_id = ?';
     public static DeleteUserById: string = 'UPDATE [user] SET status_id = ?, update_date = ?, update_user_id = ? WHERE id = ? AND status_id = ?'
-    public static GetUsers: string = 'SELECT id, first_name, last_name, login FROM [user] WHERE status_id = ?';
+    public static GetUsers: string = 'SELECT id, first_name, last_name, login, employee_id FROM [user] WHERE status_id = ?';
 
     public static AddUserRole: string = 'INSERT INTO user_to_role (user_id, role_id, create_date, update_date, create_user_id, update_user_id, status_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
     public static GetUserRoles: string = 'SELECT * FROM user_to_role WHERE status_id = ?';
@@ -54,11 +55,13 @@ export class Queries {
     public static GetEmployees: string = 'SELECT id, first_name, last_name FROM employee WHERE status_id = ?';
     public static GetEmployeeById: string = 'SELECT id, first_name, last_name FROM employee WHERE id = ? AND status_id = ?';
     public static AddEmployee: string = 'INSERT INTO employee (first_name, last_name, create_date, update_date, create_user_id, update_user_id, status_id) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    public static DeleteEmployeeById: string = 'UPDATE employee SET status_id = ?, update_date = ?, update_user_id = ? WHERE id = ? AND status_id = ?';
 
 
     public static GetEmployeePositions: string = 'SELECT id, employee_id, position_id, store_id FROM store_to_employee_to_position WHERE status_id = ?'
     public static AddEmployeePosition: string = 'INSERT INTO store_to_employee_to_position (employee_id, position_id, store_id, create_date, update_date, create_user_id, update_user_id, status_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
     public static DeleteEmployeePosition: string = 'UPDATE store_to_employee_to_position SET status_id = ?, update_date = ?, update_user_id = ? WHERE employee_id = ? AND store_id = ? AND status_id = ?';
+    public static DeleteEmployeePositionByEmployeeId: string = 'UPDATE store_to_employee_to_position SET status_id = ?, update_date = ?, update_user_id = ? WHERE employee_id = ? AND status_id = ?';
 
 
 }

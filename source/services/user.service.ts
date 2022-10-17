@@ -17,7 +17,8 @@ interface localUser {
     id: number,
     first_name: string,
     last_name: string,
-    login: string
+    login: string,
+    employee_id: number
 }
 
 export class UserService implements IUserService {
@@ -26,7 +27,7 @@ export class UserService implements IUserService {
     public add(user: user, roleId: number, userId: number): Promise<user> {
         return new Promise<user>((resolve, reject) => {
             const createDate: Date = new Date();
-            SqlHelper.createNew(this.errorService, Queries.AddUser, user, user.firstName as string, user.lastName as string, user.login as string, user.password as string, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), userId, userId, Status.Active)
+            SqlHelper.createNew(this.errorService, Queries.AddUser, user, user.firstName as string, user.lastName as string, user.employeeId as number, user.login as string, user.password as string, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), userId, userId, Status.Active)
                 .then((result: entityWithId) => {
                     if (roleId) {
                         const userRoleService: UserRoleService = new UserRoleService(this.errorService);
@@ -48,7 +49,7 @@ export class UserService implements IUserService {
     public updateById(user: user, roleId: number, userId: number): Promise<user> {
         return new Promise<user>((resolve, reject) => {
             const updateDate: Date = new Date();
-            const UpdateUserByIdQuery: string = `UPDATE [user] SET first_name = ${(user.firstName ? "'" + user.firstName + "'" : 'first_name')}, last_name = ${(user.lastName ? "'" + user.lastName + "'" : "last_name")}, update_date = '${DateHelper.dateToString(updateDate)}', update_user_id = ${userId}, password = ${((user.password as string) ? "'" + (user.password as string) + "'" : 'password')} WHERE id = ${user.id} AND status_id = ${Status.Active}`;
+            const UpdateUserByIdQuery: string = `UPDATE [user] SET first_name = ${(user.firstName ? "'" + user.firstName + "'" : 'first_name')}, employee_id = ${(user.employeeId ? user.employeeId : 'employee_id')}, last_name = ${(user.lastName ? "'" + user.lastName + "'" : "last_name")}, update_date = '${DateHelper.dateToString(updateDate)}', update_user_id = ${userId}, password = ${((user.password as string) ? "'" + (user.password as string) + "'" : 'password')} WHERE id = ${user.id} AND status_id = ${Status.Active}`;
             SqlHelper.executeQueryNoResult<user>(this.errorService, UpdateUserByIdQuery, false)
                 .then(() => {
                     if (roleId) {
@@ -104,7 +105,8 @@ export class UserService implements IUserService {
             id: localUser.id,
             firstName: localUser.first_name,
             lastName: localUser.last_name,
-            login: localUser.login
+            login: localUser.login,
+            employeeId: localUser.employee_id
         }
     }
 }

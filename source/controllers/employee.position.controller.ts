@@ -75,8 +75,29 @@ const deleteEmployeePositionByEmployeeIdAndStoreId = async (req: Request, res: R
         .catch((error: systemError) => {
             return ResponseHelper.handleError(res, error);
         });
-
-
 }
 
-export default { getEmployeePositions, addEmployeePosition, updateEmployeePositionByEmployeeIdAndStoreId, deleteEmployeePositionByEmployeeIdAndStoreId }
+const deleteEmployeePositionByEmployeeId = async (req: Request, res: Response, next: NextFunction) => {
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
+
+    if (typeof numericParamOrError === "number") {
+        if (numericParamOrError > 0) {
+            employeePositionService.deleteEmployeePositionByEmployeeId(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
+                .then(() => {
+                    return res.sendStatus(200);
+                })
+                .catch((error: systemError) => {
+                    return ResponseHelper.handleError(res, error);
+                });
+        }
+        else {
+            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+        }
+    }
+    else {
+        return ResponseHelper.handleError(res, numericParamOrError)
+    }
+}
+
+
+export default { getEmployeePositions, addEmployeePosition, updateEmployeePositionByEmployeeIdAndStoreId, deleteEmployeePositionByEmployeeIdAndStoreId, deleteEmployeePositionByEmployeeId }

@@ -23,13 +23,36 @@ const getStores = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getStoreById = async (req: Request, res: Response, next: NextFunction) => {
-
     const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
 
     if (typeof numericParamOrError === "number") {
         if (numericParamOrError > 0) {
             retailService.getStoreById(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
                 .then((result: Store) => {
+                    return res.status(200).json({
+                        result
+                    });
+                })
+                .catch((error: systemError) => {
+                    return ResponseHelper.handleError(res, error);
+                });
+        }
+        else {
+            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+        }
+    }
+    else {
+        return ResponseHelper.handleError(res, numericParamOrError)
+    }
+};
+
+const getStoresByEmployeeId = async (req: Request, res: Response, next: NextFunction) => {
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
+
+    if (typeof numericParamOrError === "number") {
+        if (numericParamOrError > 0) {
+            retailService.getStoresByEmployeeId(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
+                .then((result: Store[]) => {
                     return res.status(200).json({
                         result
                     });
@@ -118,4 +141,4 @@ const deleteStoreById = async (req: Request, res: Response, next: NextFunction) 
     }
 }
 
-export default { getStores, getStoreById, updateStoreById, addStore, deleteStoreById };
+export default { getStores, getStoreById, updateStoreById, addStore, deleteStoreById, getStoresByEmployeeId };

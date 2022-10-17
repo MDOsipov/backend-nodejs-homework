@@ -22,6 +22,7 @@ interface localEmployee {
 interface IRetailService {
     getStore(): Promise<Store[]>;
     getStoreById(id: number, userId: number): Promise<Store>;
+    getStoresByEmployeeId(employeeId: number, userId: number): Promise<Store[]>;
 }
 
 export class RetailService implements IRetailService {
@@ -51,6 +52,23 @@ export class RetailService implements IRetailService {
             SqlHelper.executeQuerySingleResult<localStore>(this.errorService, Queries.storesById, id, Status.Active)
                 .then((queryResult: localStore) => {
                     resolve(this.parseLocalStore(queryResult));
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
+    public getStoresByEmployeeId(employeeId: number, userId: number): Promise<Store[]> {
+        return new Promise<Store[]>((resolve, reject) => {
+
+            let result: Store[] = []
+            SqlHelper.executeQueryArrayResult<localStore>(this.errorService, Queries.GetStoreByEmployeeId, employeeId, Status.Active)
+                .then((queryResult: localStore[]) => {
+                    queryResult.forEach((localStore: localStore) => {
+                        result.push(this.parseLocalStore(localStore));
+                    })
+                    resolve(result);
                 })
                 .catch((error: systemError) => {
                     reject(error);

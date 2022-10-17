@@ -13,7 +13,7 @@ const errorService: ErrorService = new ErrorService();
 const userService: UserService = new UserService(errorService);
 
 interface userRole extends user {
-    role_id: number;
+    roleId: number;
 }
 
 const add = async (req: Request, res: Response, next: NextFunction) => {
@@ -24,14 +24,16 @@ const add = async (req: Request, res: Response, next: NextFunction) => {
         id: NON_EXISTENT_ID,
         firstName: body.firstName,
         lastName: body.lastName,
+        employeeId: body.employeeId,
         login: body.login,
         password: hashedPassword
-    }, body.role_id, (req as AuthenticatedRequest).userData.userId)
+    }, body.roleId, (req as AuthenticatedRequest).userData.userId)
         .then((result: user) => {
             const returnedUser: user = {
                 id: result.id,
                 firstName: result.firstName,
-                lastName: result.lastName
+                lastName: result.lastName,
+                employeeId: result.employeeId
             }
             return res.status(200).json({
                 returnedUser
@@ -56,13 +58,15 @@ const updateById = async (req: Request, res: Response, next: NextFunction) => {
                 id: numericParamOrError,
                 firstName: body.firstName,
                 lastName: body.lastName,
+                employeeId: body.employeeId,
                 password: hashedPassword !== '' ? hashedPassword : undefined
-            }, body.role_id, (req as AuthenticatedRequest).userData.userId)
+            }, body.roleId, (req as AuthenticatedRequest).userData.userId)
                 .then((result: user) => {
                     return res.status(200).json({
                         id: result.id,
                         firstName: result.firstName,
-                        lastName: result.lastName
+                        lastName: result.lastName,
+                        employeeId: result.employeeId
                     })
                 })
                 .catch((error: systemError) => {

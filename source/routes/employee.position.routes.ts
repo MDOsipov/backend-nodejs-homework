@@ -4,10 +4,11 @@ import { Role } from '../enums';
 import middleware from '../middleware/auth.middleware';
 const router = express.Router();
 
-router.get('/', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator]), controller.getEmployeePositions);
-router.post('/addEmployeePosition/', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator]), controller.addEmployeePosition);
-router.put('/updateEmployeePosition/', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.updateEmployeePositionByEmployeeIdAndStoreId);
-router.delete('/', middleware.verifyToken([Role.Administrator, Role.NetworkAdministrator, Role.StoreManager]), controller.deleteEmployeePositionByEmployeeIdAndStoreId);
+router.get('/', middleware.verifyToken([Role.NetworkAdministrator]), controller.getEmployeePositions);
+router.post('/addEmployeePosition/', middleware.verifyToken([Role.NetworkAdministrator]), controller.addEmployeePosition);
+router.put('/updateEmployeePosition/', middleware.verifyToken([Role.NetworkAdministrator, Role.StoreManager]), controller.updateEmployeePositionByEmployeeIdAndStoreId);
+router.delete('/', middleware.verifyToken([Role.NetworkAdministrator, Role.StoreManager]), controller.deleteEmployeePositionByEmployeeIdAndStoreId);
+router.delete('/:id', middleware.verifyToken([Role.NetworkAdministrator, Role.StoreManager]), controller.deleteEmployeePositionByEmployeeId);
 
 
 

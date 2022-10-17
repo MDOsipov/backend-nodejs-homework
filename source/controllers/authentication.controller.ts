@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { jwtUserData, authenticationToken } from '../entities';
+import { jwtUserData, authenticationToken, systemError } from '../entities';
 import { AuthenticationService } from '../services/authentication.services';
 import { ErrorService } from "../services/error.service";
 import jwt from "jsonwebtoken";
 import { TOKENSECRET } from "../constants";
+import { SqlHelper } from '../helpers/sql.helper';
+import { ResponseHelper } from '../helpers/response.helper';
 
 interface localUser {
     login: string;
@@ -33,6 +35,9 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
             return res.status(200).json({
                 token: token
             })
+        })
+        .catch((error: systemError) => {
+            return ResponseHelper.handleError(res, error);
         })
 }
 

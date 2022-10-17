@@ -98,6 +98,19 @@ export class EmployeeService implements IEmployeeService {
         });
     }
 
+    public deleteEmployeeById(id: number, userId: number): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            const updateDate: Date = new Date();
+            SqlHelper.executeQueryNoResult<Employee>(this.errorService, Queries.DeleteEmployeeById, true, Status.NotActive, DateHelper.dateToString(updateDate), userId, id, Status.Active)
+                .then(() => {
+                    resolve();
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
     private parseLocalEmployee(local: localEmployee): Employee {
         return {
             id: local.id,

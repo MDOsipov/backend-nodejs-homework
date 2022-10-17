@@ -82,6 +82,19 @@ export class EmployeePositionService implements IEmployeePositionService {
         });
     }
 
+    public deleteEmployeePositionByEmployeeId(employeeId: number, userId: number): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            const updateDate: Date = new Date();
+            SqlHelper.executeQueryNoResult<EmployeePosition>(this.errorService, Queries.DeleteEmployeePositionByEmployeeId, true, Status.NotActive, DateHelper.dateToString(updateDate), userId, employeeId, Status.Active)
+                .then(() => {
+                    resolve();
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
     private parseLocalEmployeePosition(localemployeePosition: localEmployeePosition): EmployeePosition {
         return {
             id: localemployeePosition.id,
