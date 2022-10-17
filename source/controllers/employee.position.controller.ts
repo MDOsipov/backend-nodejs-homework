@@ -1,16 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
 import { ErrorCodes, NON_EXISTENT_ID } from '../constants';
 import { systemError, Store, Employee, EmployeePosition, AuthenticatedRequest, entityWithId } from '../entities';
-import { AppError } from '../enums';
+import { AppError, Role } from '../enums';
 import { RequestHelper } from '../helpers/request.helper';
 import { ResponseHelper } from '../helpers/response.helper';
 import { ErrorService } from '../services/error.service';
 import { EmployeePositionService } from '../services/employee.position.service';
+import { RetailService } from '../services/retail.service';
 
 
 
 const errorService: ErrorService = new ErrorService;
 const employeePositionService: EmployeePositionService = new EmployeePositionService(errorService);
+const retailService: RetailService = new RetailService(errorService);
 
 interface localEmployeeStore extends entityWithId {
     employeeId: number;
@@ -27,6 +29,65 @@ const getEmployeePositions = async (req: Request, res: Response, next: NextFunct
         .catch((error: systemError) => {
             return ResponseHelper.handleError(res, error);
         });
+};
+
+const getEmployeePositionsByStoreId = async (req: Request, res: Response, next: NextFunction) => {
+
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.storeId);
+
+    if ((req as AuthenticatedRequest).userData.roleId.lastIndexOf(Role.StoreManager) != -1) {
+        retailService.getStoresByUserId((req as AuthenticatedRequest).userData.userId, (req as AuthenticatedRequest).userData.userId)
+            .then((result: Store[]) => {
+                const suitableStore: Store[] = result.filter((elem: Store) => {
+                    return elem.id == numericParamOrError;
+                });
+                if (suitableStore.length == 0) {
+                    return res.sendStatus(401);
+                }
+                else {
+                    if (typeof numericParamOrError === "number") {
+                        if (numericParamOrError > 0) {
+                            employeePositionService.getEmployeePositionsByStoreId(numericParamOrError as number)
+                                .then((result: EmployeePosition[]) => {
+                                    return res.status(200).json({
+                                        message: result
+                                    });
+                                })
+                                .catch((error: systemError) => {
+                                    return ResponseHelper.handleError(res, error);
+                                });
+                        }
+                        else {
+                            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+                        }
+                    }
+                    else {
+                        return ResponseHelper.handleError(res, numericParamOrError)
+                    }
+                }
+            })
+    }
+    else {
+        if (typeof numericParamOrError === "number") {
+            if (numericParamOrError > 0) {
+                employeePositionService.getEmployeePositionsByStoreId(numericParamOrError as number)
+                    .then((result: EmployeePosition[]) => {
+                        return res.status(200).json({
+                            message: result
+                        });
+                    })
+                    .catch((error: systemError) => {
+                        return ResponseHelper.handleError(res, error);
+                    });
+            }
+            else {
+                return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+            }
+        }
+        else {
+            return ResponseHelper.handleError(res, numericParamOrError)
+        }
+    }
 };
 
 const addEmployeePosition = async (req: Request, res: Response, next: NextFunction) => {
@@ -100,4 +161,4 @@ const deleteEmployeePositionByEmployeeId = async (req: Request, res: Response, n
 }
 
 
-export default { getEmployeePositions, addEmployeePosition, updateEmployeePositionByEmployeeIdAndStoreId, deleteEmployeePositionByEmployeeIdAndStoreId, deleteEmployeePositionByEmployeeId }
+export default { getEmployeePositions, addEmployeePosition, updateEmployeePositionByEmployeeIdAndStoreId, deleteEmployeePositionByEmployeeIdAndStoreId, deleteEmployeePositionByEmployeeId, getEmployeePositionsByStoreId }

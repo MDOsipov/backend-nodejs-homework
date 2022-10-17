@@ -60,7 +60,9 @@ export class Queries {
     public static DeleteEmployeeById: string = 'UPDATE employee SET status_id = ?, update_date = ?, update_user_id = ? WHERE id = ? AND status_id = ?';
 
 
-    public static GetEmployeePositions: string = 'SELECT id, employee_id, position_id, store_id FROM store_to_employee_to_position WHERE status_id = ?'
+    public static GetEmployeePositions: string = 'SELECT id, employee_id, position_id, store_id FROM store_to_employee_to_position WHERE status_id = ?';
+    public static GetEmployeePositionsByStoreId: string = 'SELECT id, employee_id, position_id, store_id FROM store_to_employee_to_position WHERE store_id = ? AND status_id = ?';
+
     public static AddEmployeePosition: string = 'INSERT INTO store_to_employee_to_position (employee_id, position_id, store_id, create_date, update_date, create_user_id, update_user_id, status_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
     public static DeleteEmployeePosition: string = 'UPDATE store_to_employee_to_position SET status_id = ?, update_date = ?, update_user_id = ? WHERE employee_id = ? AND store_id = ? AND status_id = ?';
     public static DeleteEmployeePositionByEmployeeId: string = 'UPDATE store_to_employee_to_position SET status_id = ?, update_date = ?, update_user_id = ? WHERE employee_id = ? AND status_id = ?';

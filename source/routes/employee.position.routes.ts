@@ -5,6 +5,7 @@ import middleware from '../middleware/auth.middleware';
 const router = express.Router();
 
 router.get('/', middleware.verifyToken([Role.NetworkAdministrator]), controller.getEmployeePositions);
+router.get('/:storeId', middleware.verifyToken([Role.NetworkAdministrator, Role.StoreManager]), controller.getEmployeePositionsByStoreId);
 router.post('/addEmployeePosition/', middleware.verifyToken([Role.NetworkAdministrator]), controller.addEmployeePosition);
 router.put('/updateEmployeePosition/', middleware.verifyToken([Role.NetworkAdministrator, Role.StoreManager]), controller.updateEmployeePositionByEmployeeIdAndStoreId);
 router.delete('/', middleware.verifyToken([Role.NetworkAdministrator, Role.StoreManager]), controller.deleteEmployeePositionByEmployeeIdAndStoreId);

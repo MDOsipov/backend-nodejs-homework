@@ -42,6 +42,23 @@ export class EmployeePositionService implements IEmployeePositionService {
         });
     }
 
+    public getEmployeePositionsByStoreId(storeId: number): Promise<EmployeePosition[]> {
+        return new Promise<EmployeePosition[]>((resolve, reject) => {
+            const result: EmployeePosition[] = [];
+
+            SqlHelper.executeQueryArrayResult<localEmployeePosition>(this.errorService, Queries.GetEmployeePositionsByStoreId, storeId, Status.Active)
+                .then((queryResult: localEmployeePosition[]) => {
+                    queryResult.forEach(employeePosition => {
+                        result.push(this.parseLocalEmployeePosition(employeePosition));
+                    });
+                    resolve(result);
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
     public addEmployeePosition(employeePosition: EmployeePosition, userId: number): Promise<EmployeePosition> {
         return new Promise<EmployeePosition>((resolve, reject) => {
             const createDate: Date = new Date();
