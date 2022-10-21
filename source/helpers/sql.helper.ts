@@ -47,36 +47,66 @@ export class SqlHelper {
     }
 
     public static executeQuerySingleResult<T>(errorService: ErrorService, query: string, ...params: (string | number)[]): Promise<T> {
-        return new Promise<T>((resolve, reject) => {
-            console.log(query, params);
-            SqlHelper.SqlConnection(errorService)
-                .then((connection: Connection) => {
-                    connection.query(query, params, (queryError: Error | undefined, queryResult: T[] | undefined) => {
-                        if (queryError) {
-                            reject(errorService.getError(AppError.QueryError));
-                        }
-                        else {
-                            if (queryResult !== undefined) {
-                                switch (queryResult.length) {
-                                    case 0:
-                                        reject(errorService.getError(AppError.NoData));
-                                        break;
-                                    case 1:
-                                        resolve(queryResult[0]);
-                                        break;
-                                    default:
-                                        resolve(queryResult[0]);
-                                        break;
-                                }
-                            } else {
-                                reject(errorService.getError(AppError.NoData));
+        return new Promise<T>(async (resolve, reject) => {
+            try {
+                console.log(query, params);
+                const connection: Connection = await SqlHelper.SqlConnection(errorService);
+
+                connection.query(query, params, (queryError: Error | undefined, queryResult: T[] | undefined) => {
+                    if (queryError) {
+                        reject(errorService.getError(AppError.QueryError));
+                    }
+                    else {
+                        if (queryResult !== undefined) {
+                            switch (queryResult.length) {
+                                case 0:
+                                    reject(errorService.getError(AppError.NoData));
+                                    break;
+                                case 1:
+                                    resolve(queryResult[0]);
+                                    break;
+                                default:
+                                    resolve(queryResult[0]);
+                                    break;
                             }
-                        };
-                    });
-                })
-                .catch((error: systemError) => {
-                    reject(error);
-                })
+                        } else {
+                            reject(errorService.getError(AppError.NoData));
+                        }
+                    };
+                });
+            }
+            catch (error: any) {
+                reject(error as systemError);
+            }
+            // console.log(query, params);
+            // SqlHelper.SqlConnection(errorService)
+            //     .then((connection: Connection) => {
+            //         connection.query(query, params, (queryError: Error | undefined, queryResult: T[] | undefined) => {
+            //             if (queryError) {
+            //                 reject(errorService.getError(AppError.QueryError));
+            //             }
+            //             else {
+            //                 if (queryResult !== undefined) {
+            //                     switch (queryResult.length) {
+            //                         case 0:
+            //                             reject(errorService.getError(AppError.NoData));
+            //                             break;
+            //                         case 1:
+            //                             resolve(queryResult[0]);
+            //                             break;
+            //                         default:
+            //                             resolve(queryResult[0]);
+            //                             break;
+            //                     }
+            //                 } else {
+            //                     reject(errorService.getError(AppError.NoData));
+            //                 }
+            //             };
+            //         });
+            //     })
+            //     .catch((error: systemError) => {
+            //         reject(error);
+            //     })
         });
     }
 
