@@ -19,9 +19,14 @@ export class ResponseHelper {
                     errorMessage: error.message
                 });
             case AppError.NoData:
-                return response.status(404).json({
-                    errorMessage: error.message
-                });
+                if (isAuthentication) {
+                    return response.sendStatus(403);
+                }
+                else {
+                    return response.status(404).json({
+                        errorMessage: error.message
+                    });
+                }
             default:
                 return response.status(400).json({
                     errorMessage: error.message

@@ -29,16 +29,7 @@ export class UserService implements IUserService {
             const createDate: Date = new Date();
             SqlHelper.createNew(this.errorService, Queries.AddUser, user, user.firstName as string, user.lastName as string, user.employeeId as number, user.login as string, user.password as string, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), userId, userId, Status.Active)
                 .then((result: entityWithId) => {
-                    if (roleId) {
-                        const userRoleService: UserRoleService = new UserRoleService(this.errorService);
-                        userRoleService.add({ id: NON_EXISTENT_ID, userId: (result as user).id, roleId: roleId }, userId)
-                            .then((result: userRole) => { })
-                            .catch((error: systemError) => reject(error))
-                        resolve(result as user);
-                    }
-                    else {
-                        resolve(result as user);
-                    }
+                    resolve(result as user);
                 })
                 .catch((error: systemError) => {
                     reject(error);
@@ -52,18 +43,7 @@ export class UserService implements IUserService {
             const UpdateUserByIdQuery: string = `UPDATE [user] SET first_name = ${(user.firstName ? "'" + user.firstName + "'" : 'first_name')}, employee_id = ${(user.employeeId ? user.employeeId : 'employee_id')}, last_name = ${(user.lastName ? "'" + user.lastName + "'" : "last_name")}, update_date = '${DateHelper.dateToString(updateDate)}', update_user_id = ${userId}, password = ${((user.password as string) ? "'" + (user.password as string) + "'" : 'password')} WHERE id = ${user.id} AND status_id = ${Status.Active}`;
             SqlHelper.executeQueryNoResult<user>(this.errorService, UpdateUserByIdQuery, false)
                 .then(() => {
-                    if (roleId) {
-                        const userRoleService: UserRoleService = new UserRoleService(this.errorService);
-                        userRoleService.deleteUserRoleByUserId(user.id, userId)
-                        userRoleService.add({ id: NON_EXISTENT_ID, userId: user.id, roleId: roleId }, userId)
-                            .then(() => {
-                                resolve(user);
-                            })
-                            .catch((error: systemError) => reject(error))
-                    }
-                    else {
-                        resolve(user);
-                    }
+                    resolve(user);
                 })
                 .catch((error: systemError) => {
                     reject(error);

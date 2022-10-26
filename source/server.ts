@@ -10,8 +10,6 @@ import roleRoutes from './routes/role.routes';
 import employeeRoutes from './routes/employee.routes';
 import employeePositionRoutes from './routes/employee.position.routes';
 
-
-
 const router: Express = express();
 
 /** Logging */
@@ -43,10 +41,6 @@ router.use('/userRole', userRoleRoutes.router);
 router.use('/role', roleRoutes.router);
 router.use('/employee', employeeRoutes.router);
 router.use('/employeePosition', employeePositionRoutes.router);
-
-
-
-
 
 /** Error handling */
 router.use((req, res, next) => {

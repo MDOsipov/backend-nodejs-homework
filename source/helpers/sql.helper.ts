@@ -7,7 +7,7 @@ import { ErrorService } from "../services/error.service";
 
 export class SqlHelper {
     static sql: SqlClient = require("msnodesqlv8");
-    static mssql: SqlClient = require("mssql");
+    //static mssql: SqlClient = require("mssql");
 
     private static SqlConnection(errorService: ErrorService): Promise<Connection> {
         return new Promise<Connection>((resolve, reject) => {
