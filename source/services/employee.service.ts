@@ -40,6 +40,23 @@ export class EmployeeService implements IEmployeeService {
         });
     }
 
+    public getEmployeesWithProcedure(): Promise<Employee[]> {
+        return new Promise<Employee[]>((resolve, reject) => {
+            const result: Employee[] = [];
+
+            SqlHelper.executeStoredProcedureArrayResult<localEmployee>(this.errorService, 'sp_get_employees', Status.Active)
+                .then((queryResult: localEmployee[]) => {
+                    queryResult.forEach(employee => {
+                        result.push(this.parseLocalEmployee(employee));
+                    });
+                    resolve(result);
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
     public getEmployeesByStoreId(id: number, userId: number): Promise<Employee[]> {
         return new Promise<Employee[]>((resolve, reject) => {
 
@@ -59,9 +76,40 @@ export class EmployeeService implements IEmployeeService {
         });
     }
 
+    public getEmployeesByStoreIdWithProcedure(id: number, userId: number): Promise<Employee[]> {
+        return new Promise<Employee[]>((resolve, reject) => {
+
+            const result: Employee[] = [];
+
+            SqlHelper.executeStoredProcedureArrayResult<localEmployee>(this.errorService, 'sp_get_employees_by_store_id', id, Status.Active)
+                .then((queryResult: localEmployee[]) => {
+                    queryResult.forEach(employee => {
+                        result.push(this.parseLocalEmployee(employee));
+                    });
+                    resolve(result);
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+
+        });
+    }
+
     public getEmployeeById(id: number, userId: number): Promise<Employee> {
         return new Promise<Employee>((resolve, reject) => {
             SqlHelper.executeQuerySingleResult<localEmployee>(this.errorService, Queries.GetEmployeeById, id, Status.Active)
+                .then((queryResult: localEmployee) => {
+                    resolve(this.parseLocalEmployee(queryResult));
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
+    public getEmployeeByIdWithStoredProcedure(id: number, userId: number): Promise<Employee> {
+        return new Promise<Employee>((resolve, reject) => {
+            SqlHelper.executeStoredProcedureSingleResult<localEmployee>(this.errorService, 'sp_get_employee_by_id', id, Status.Active)
                 .then((queryResult: localEmployee) => {
                     resolve(this.parseLocalEmployee(queryResult));
                 })

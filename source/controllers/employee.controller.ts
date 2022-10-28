@@ -33,6 +33,18 @@ const getEmployees = async (req: Request, res: Response, next: NextFunction) => 
         });
 };
 
+const getEmployeesWithProcedure = async (req: Request, res: Response, next: NextFunction) => {
+    employeeService.getEmployeesWithProcedure()
+        .then((result: Employee[]) => {
+            return res.status(200).json({
+                message: result
+            });
+        })
+        .catch((error: systemError) => {
+            return ResponseHelper.handleError(res, error);
+        });
+};
+
 const getEmployeesByStoreId = async (req: Request, res: Response, next: NextFunction) => {
     const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
 
@@ -91,12 +103,94 @@ const getEmployeesByStoreId = async (req: Request, res: Response, next: NextFunc
     }
 };
 
+const getEmployeesByStoreIdWithProcedure = async (req: Request, res: Response, next: NextFunction) => {
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
+
+    if ((req as AuthenticatedRequest).userData.roleId.lastIndexOf(Role.StoreManager) != -1) {
+        retailService.getStoresByUserId((req as AuthenticatedRequest).userData.userId, (req as AuthenticatedRequest).userData.userId)
+            .then((result: Store[]) => {
+                const suitableStore: Store[] = result.filter((elem: Store) => {
+                    return elem.id == numericParamOrError;
+                });
+                if (suitableStore.length == 0) {
+                    return res.sendStatus(401);
+                }
+                else {
+                    if (typeof numericParamOrError === "number") {
+                        if (numericParamOrError > 0) {
+                            employeeService.getEmployeesByStoreIdWithProcedure(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
+                                .then((result: Employee[]) => {
+                                    return res.status(200).json({
+                                        result
+                                    });
+                                })
+                                .catch((error: systemError) => {
+                                    return ResponseHelper.handleError(res, error);
+                                });
+                        }
+                        else {
+                            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+                        }
+                    }
+                    else {
+                        return ResponseHelper.handleError(res, numericParamOrError)
+                    }
+                }
+            })
+    }
+    else {
+        if (typeof numericParamOrError === "number") {
+            if (numericParamOrError > 0) {
+                employeeService.getEmployeesByStoreIdWithProcedure(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
+                    .then((result: Employee[]) => {
+                        return res.status(200).json({
+                            result
+                        });
+                    })
+                    .catch((error: systemError) => {
+                        return ResponseHelper.handleError(res, error);
+                    });
+            }
+            else {
+                return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+            }
+        }
+        else {
+            return ResponseHelper.handleError(res, numericParamOrError)
+        }
+    }
+};
+
 const getEmployeeById = async (req: Request, res: Response, next: NextFunction) => {
     const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
 
     if (typeof numericParamOrError === "number") {
         if (numericParamOrError > 0) {
             employeeService.getEmployeeById(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
+                .then((result: Employee) => {
+                    return res.status(200).json({
+                        result
+                    });
+                })
+                .catch((error: systemError) => {
+                    return ResponseHelper.handleError(res, error);
+                });
+        }
+        else {
+            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+        }
+    }
+    else {
+        return ResponseHelper.handleError(res, numericParamOrError)
+    }
+};
+
+const getEmployeeByIdWithProcedure = async (req: Request, res: Response, next: NextFunction) => {
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
+
+    if (typeof numericParamOrError === "number") {
+        if (numericParamOrError > 0) {
+            employeeService.getEmployeeByIdWithStoredProcedure(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
                 .then((result: Employee) => {
                     return res.status(200).json({
                         result
@@ -211,4 +305,4 @@ const deleteEmployeeById = async (req: Request, res: Response, next: NextFunctio
     }
 }
 
-export default { getEmployees, getEmployeesByStoreId, getEmployeeById, updateEmployeeById, addEmployee, deleteEmployeeById }
+export default { getEmployees, getEmployeesByStoreId, getEmployeeById, updateEmployeeById, addEmployee, deleteEmployeeById, getEmployeesWithProcedure, getEmployeeByIdWithProcedure, getEmployeesByStoreIdWithProcedure }

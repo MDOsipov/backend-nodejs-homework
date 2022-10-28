@@ -1,4 +1,4 @@
-import { SqlClient, Connection, Error, Query } from "msnodesqlv8";
+import { SqlClient, Connection, Error, Query, ProcedureManager } from "msnodesqlv8";
 import { systemError, entityWithId } from "../entities";
 import { reject } from "underscore";
 import { DB_CONNECTION_STRING, Queries } from "../constants";
@@ -20,6 +20,39 @@ export class SqlHelper {
                 }
             })
         })
+    }
+
+    private static treatInsertResult(errorService: ErrorService, original: entityWithId, queryResult: entityWithId[] | undefined, resolve: (result: entityWithId) => void, reject: (error: systemError) => void): void {
+        const badQueryError: systemError = errorService.getError(AppError.QueryError);
+
+        if (queryResult !== undefined) {
+            if (queryResult.length === 1) {
+                original.id = queryResult[0].id;
+                resolve(original);
+            }
+            else {
+                reject(badQueryError);
+            }
+        }
+        else {
+            reject(badQueryError);
+        }
+    }
+
+
+    private static treatInsertResult2(queryResult: entityWithId[] | undefined): number | null {
+
+        if (queryResult !== undefined) {
+            if (queryResult.length === 1) {
+                return queryResult[0].id;
+            }
+            else {
+                return null;
+            }
+        }
+        else {
+            return null;
+        }
     }
 
     public static executeQueryArrayResult<T>(errorService: ErrorService, query: string, ...params: (string | number)[]): Promise<T[]> {
@@ -179,4 +212,117 @@ export class SqlHelper {
                 })
         });
     }
+
+    public static executeStoredProcedureArrayResult<T>(errorService: ErrorService, procedureName: string, ...params: (string | number)[]): Promise<T[]> {
+        return new Promise<T[]>((resolve, reject) => {
+            SqlHelper.SqlConnection(errorService)
+                .then((connection: Connection) => {
+                    const pm: ProcedureManager = connection.procedureMgr();
+                    pm.callproc(procedureName, params, (storedProcedureError: Error | undefined, results: T[] | undefined, output: any[] | undefined) => {
+                        if (storedProcedureError) {
+                            reject(errorService.getError(AppError.QueryError));
+                        }
+                        else {
+                            if (results !== undefined) {
+                                resolve(results);
+                            }
+                            else {
+                                reject(errorService.getError(AppError.QueryError));
+                            }
+                        }
+                    });
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
+    public static executeStoredProcedureSingleResult<T>(errorService: ErrorService, procedureName: string, ...params: (string | number)[]): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+            SqlHelper.SqlConnection(errorService)
+                .then((connection: Connection) => {
+                    const pm: ProcedureManager = connection.procedureMgr();
+                    pm.callproc(procedureName, params, (storedProcedureError: Error | undefined, results: T[] | undefined, output: any[] | undefined) => {
+                        if (results !== undefined) {
+                            switch (results.length) {
+                                case 0:
+                                    reject(errorService.getError(AppError.NoData));
+                                    break;
+                                case 1:
+                                    resolve(results[0]);
+                                    break;
+                                default:
+                                    resolve(results[0]);
+                                    break;
+                            }
+                        } else {
+                            reject(errorService.getError(AppError.NoData));
+                        }
+                    });
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
+    public static executeStoredProcedure(errorService: ErrorService, procedureName: string, original?: entityWithId, ...params: (string | number)[]): Promise<entityWithId> {
+        return new Promise<entityWithId>((resolve, reject) => {
+            SqlHelper.SqlConnection(errorService)
+                .then((connection: Connection) => {
+                    const pm: ProcedureManager = connection.procedureMgr();
+                    pm.callproc(procedureName, params, (storedProcedureError: Error | undefined, results: entityWithId[] | undefined, output: any[] | undefined) => {
+                        if (storedProcedureError) {
+                            reject(errorService.getError(AppError.QueryError));
+                        }
+                        else {
+                            const id: number | null = SqlHelper.treatInsertResult2(results);
+
+                            if (id !== null && original !== undefined) {
+                                original.id = id;
+                                resolve(original);
+                            }
+                            else if (id !== null) {
+                                //
+                            }
+                            else {
+                                reject(errorService.getError(AppError.QueryError));
+                            }
+                        }
+                    });
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
+    public static executeStoredProcedureWithOutput(errorService: ErrorService, procedureName: string, original: entityWithId, ...params: (string | number)[]): Promise<entityWithId> {
+        return new Promise<entityWithId>((resolve, reject) => {
+            SqlHelper.SqlConnection(errorService)
+                .then((connection: Connection) => {
+                    const pm: ProcedureManager = connection.procedureMgr();
+                    params.push(original.id);
+                    pm.callproc(procedureName, params, (storedProcedureError: Error | undefined, results: any[] | undefined, output: number[] | undefined) => {
+                        if (storedProcedureError) {
+                            reject(errorService.getError(AppError.QueryError));
+                        }
+                        else {
+                            if (output?.length === 2) {
+                                original.id = output[1];
+                                resolve(original);
+                            }
+                            else {
+                                reject(errorService.getError(AppError.QueryError));
+                            }
+                        }
+                    });
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        })
+    }
+
 }

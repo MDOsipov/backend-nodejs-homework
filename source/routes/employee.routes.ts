@@ -4,9 +4,11 @@ import { Role } from '../enums';
 import middleware from '../middleware/auth.middleware';
 const router = express.Router();
 
-router.get('/', middleware.verifyToken([Role.NetworkAdministrator]), controller.getEmployees);
-router.get('/employeesByStoreId/:id', middleware.verifyToken([Role.NetworkAdministrator, Role.StoreManager]), controller.getEmployeesByStoreId);
-router.get('/:id', middleware.verifyToken([Role.NetworkAdministrator]), controller.getEmployeeById);
+// router.get('/', middleware.verifyToken([Role.NetworkAdministrator]), controller.getEmployees);
+router.get('/', middleware.verifyToken([Role.NetworkAdministrator]), controller.getEmployeesWithProcedure);
+
+router.get('/employeesByStoreId/:id', middleware.verifyToken([Role.NetworkAdministrator, Role.StoreManager]), controller.getEmployeesByStoreIdWithProcedure);
+router.get('/:id', middleware.verifyToken([Role.NetworkAdministrator]), controller.getEmployeeByIdWithProcedure);
 router.put('/:id', middleware.verifyToken([Role.NetworkAdministrator]), controller.updateEmployeeById);
 router.post('/', middleware.verifyToken([Role.NetworkAdministrator]), controller.addEmployee);
 router.delete('/:id', middleware.verifyToken([Role.NetworkAdministrator, Role.StoreManager]), controller.deleteEmployeeById);
