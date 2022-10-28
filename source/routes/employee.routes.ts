@@ -9,7 +9,7 @@ router.get('/', middleware.verifyToken([Role.NetworkAdministrator]), controller.
 
 router.get('/employeesByStoreId/:id', middleware.verifyToken([Role.NetworkAdministrator, Role.StoreManager]), controller.getEmployeesByStoreIdWithProcedure);
 router.get('/:id', middleware.verifyToken([Role.NetworkAdministrator]), controller.getEmployeeByIdWithProcedure);
-router.put('/:id', middleware.verifyToken([Role.NetworkAdministrator]), controller.updateEmployeeById);
+router.put('/:id', middleware.verifyToken([Role.NetworkAdministrator]), controller.updateEmployeeByIdWithProcedure);
 router.post('/', middleware.verifyToken([Role.NetworkAdministrator]), controller.addEmployee);
 router.delete('/:id', middleware.verifyToken([Role.NetworkAdministrator, Role.StoreManager]), controller.deleteEmployeeById);
 

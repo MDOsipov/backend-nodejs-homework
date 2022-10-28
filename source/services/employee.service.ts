@@ -133,6 +133,19 @@ export class EmployeeService implements IEmployeeService {
         });
     }
 
+    public updateEmployeeByIdWithProcedure(employee: Employee, userId: number): Promise<Employee> {
+        return new Promise<Employee>((resolve, reject) => {
+            SqlHelper.executeStoredProcedureNoResult(this.errorService, 'sp_update_employee_by_id', true, employee.id, employee.firstName, employee.lastName, userId, Status.Active)
+                .then(() => {
+                    console.log("Hey!");
+                    resolve(employee);
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
     public addEmployee(employee: Employee, userId: number): Promise<Employee> {
         return new Promise<Employee>((resolve, reject) => {
             const createDate: Date = new Date();

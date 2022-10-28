@@ -244,7 +244,10 @@ export class SqlHelper {
                 .then((connection: Connection) => {
                     const pm: ProcedureManager = connection.procedureMgr();
                     pm.callproc(procedureName, params, (storedProcedureError: Error | undefined, results: T[] | undefined, output: any[] | undefined) => {
-                        if (results !== undefined) {
+                        if (storedProcedureError) {
+                            reject(errorService.getError(AppError.QueryError));
+                        }
+                        else if (results !== undefined) {
                             switch (results.length) {
                                 case 0:
                                     reject(errorService.getError(AppError.NoData));
@@ -267,29 +270,29 @@ export class SqlHelper {
         });
     }
 
-    public static executeStoredProcedure(errorService: ErrorService, procedureName: string, original?: entityWithId, ...params: (string | number)[]): Promise<entityWithId> {
-        return new Promise<entityWithId>((resolve, reject) => {
+    public static executeStoredProcedureNoResult(errorService: ErrorService, procedureName: string, ignoreNoRowsAffected: boolean, ...params: (string | number)[]): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
             SqlHelper.SqlConnection(errorService)
                 .then((connection: Connection) => {
                     const pm: ProcedureManager = connection.procedureMgr();
-                    pm.callproc(procedureName, params, (storedProcedureError: Error | undefined, results: entityWithId[] | undefined, output: any[] | undefined) => {
+                    const q: Query = pm.callproc(procedureName, params, (storedProcedureError: Error | undefined, results: entityWithId[] | undefined, output: any[] | undefined) => {
                         if (storedProcedureError) {
-                            reject(errorService.getError(AppError.QueryError));
-                        }
-                        else {
-                            const id: number | null = SqlHelper.treatInsertResult2(results);
-
-                            if (id !== null && original !== undefined) {
-                                original.id = id;
-                                resolve(original);
-                            }
-                            else if (id !== null) {
-                                //
-                            }
-                            else {
-                                reject(errorService.getError(AppError.QueryError));
+                            switch (storedProcedureError.code) {
+                                case 547:
+                                    reject(errorService.getError(AppError.DeletionConflict));
+                                    break;
+                                default:
+                                    reject(errorService.getError(AppError.QueryError));
+                                    break;
                             }
                         }
+                    });
+                    q.on('rowcount', (rowCount: number) => {
+                        if (!ignoreNoRowsAffected && rowCount === 0) {
+                            reject(errorService.getError(AppError.NoData));
+                            return;
+                        }
+                        resolve();
                     });
                 })
                 .catch((error: systemError) => {

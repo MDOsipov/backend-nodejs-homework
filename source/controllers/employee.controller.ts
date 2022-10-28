@@ -255,6 +255,52 @@ const updateEmployeeById = async (req: Request, res: Response, next: NextFunctio
     }
 }
 
+const updateEmployeeByIdWithProcedure = async (req: Request, res: Response, next: NextFunction) => {
+
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
+
+    if (typeof numericParamOrError === "number") {
+        if (numericParamOrError > 0) {
+            const body: employeeWithPositionInStore = req.body;
+
+            employeeService.updateEmployeeByIdWithProcedure({
+                id: numericParamOrError,
+                firstName: body.firstName,
+                lastName: body.lastName
+            }, (req as AuthenticatedRequest).userData.userId)
+                .then((result: Employee) => {
+                    if (body.positionId !== undefined && body.storeId !== undefined) {
+                        employeePositionService.updateEmployeePositionByEmployeeIdAndStoreId({
+                            id: body.id,
+                            positionId: body.positionId,
+                            employeeId: numericParamOrError,
+                            storeId: body.storeId
+                        }, (req as AuthenticatedRequest).userData.userId)
+                            .then(() => {
+                                return res.status(200).json({
+                                    result: result
+                                })
+                            })
+                    }
+                    else {
+                        return res.status(200).json({
+                            result: result
+                        })
+                    }
+                })
+                .catch((error: systemError) => {
+                    return ResponseHelper.handleError(res, error);
+                });
+        }
+        else {
+            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+        }
+    }
+    else {
+        return ResponseHelper.handleError(res, numericParamOrError)
+    }
+}
+
 const addEmployee = async (req: Request, res: Response, next: NextFunction) => {
     const body: employeeWithPositionInStore = req.body;
 
@@ -305,4 +351,7 @@ const deleteEmployeeById = async (req: Request, res: Response, next: NextFunctio
     }
 }
 
-export default { getEmployees, getEmployeesByStoreId, getEmployeeById, updateEmployeeById, addEmployee, deleteEmployeeById, getEmployeesWithProcedure, getEmployeeByIdWithProcedure, getEmployeesByStoreIdWithProcedure }
+export default {
+    getEmployees, getEmployeesByStoreId, getEmployeeById, updateEmployeeById, addEmployee, deleteEmployeeById, getEmployeesWithProcedure,
+    getEmployeeByIdWithProcedure, getEmployeesByStoreIdWithProcedure, updateEmployeeByIdWithProcedure
+}
