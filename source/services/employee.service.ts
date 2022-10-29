@@ -123,7 +123,7 @@ export class EmployeeService implements IEmployeeService {
         return new Promise<Employee>((resolve, reject) => {
             const updateDate: Date = new Date();
             const updateEmployeeById: string = `UPDATE employee SET first_name = ${employee.firstName ? "'" + employee.firstName + "'" : 'first_name'}, last_name = ${employee.lastName ? employee.lastName : 'last_name'}, update_date = '${DateHelper.dateToString(updateDate)}', update_user_id = ${userId} WHERE id = ${employee.id} AND status_id = ${Status.Active}`;
-            SqlHelper.executeQueryNoResult(this.errorService, updateEmployeeById, false)
+            SqlHelper.executeQueryNoResult<Employee>(this.errorService, updateEmployeeById, false)
                 .then(() => {
                     resolve(employee);
                 })
@@ -152,6 +152,19 @@ export class EmployeeService implements IEmployeeService {
             SqlHelper.createNew(this.errorService, Queries.AddEmployee, employee, employee.firstName, employee.lastName, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), userId, userId, Status.Active)
                 .then((queryResult: entityWithId) => {
                     resolve(queryResult as Employee);
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
+    public addEmployeeWithProcedure(employee: Employee, userId: number): Promise<Employee> {
+        return new Promise<Employee>((resolve, reject) => {
+
+            SqlHelper.executeStoredProcedureAddNew(this.errorService, 'sp_add_employee', employee.firstName, employee.lastName, userId, userId, Status.Active)
+                .then((queryResult: entityWithId) => {
+                    resolve(this.parseLocalEmployee(queryResult as localEmployee) as Employee);
                 })
                 .catch((error: systemError) => {
                     reject(error);

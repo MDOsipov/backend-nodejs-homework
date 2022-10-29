@@ -270,12 +270,12 @@ export class SqlHelper {
         });
     }
 
-    public static executeStoredProcedureNoResult(errorService: ErrorService, procedureName: string, ignoreNoRowsAffected: boolean, ...params: (string | number)[]): Promise<void> {
+    public static executeStoredProcedureNoResult<T>(errorService: ErrorService, procedureName: string, ignoreNoRowsAffected: boolean, ...params: (string | number)[]): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             SqlHelper.SqlConnection(errorService)
                 .then((connection: Connection) => {
                     const pm: ProcedureManager = connection.procedureMgr();
-                    const q: Query = pm.callproc(procedureName, params, (storedProcedureError: Error | undefined, results: entityWithId[] | undefined, output: any[] | undefined) => {
+                    const q: Query = pm.callproc(procedureName, params, (storedProcedureError: Error | undefined, results: T[] | undefined, output: any[] | undefined) => {
                         if (storedProcedureError) {
                             switch (storedProcedureError.code) {
                                 case 547:
@@ -318,6 +318,35 @@ export class SqlHelper {
                             }
                             else {
                                 reject(errorService.getError(AppError.QueryError));
+                            }
+                        }
+                    });
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        })
+    }
+
+    public static executeStoredProcedureAddNew(errorService: ErrorService, procedureName: string, ...params: (string | number)[]): Promise<entityWithId> {
+        return new Promise<entityWithId>((resolve, reject) => {
+            SqlHelper.SqlConnection(errorService)
+                .then((connection: Connection) => {
+                    let execution_counter: number = 0;
+                    const pm: ProcedureManager = connection.procedureMgr();
+                    pm.callproc(procedureName, params, (storedProcedureError: Error | undefined, results: entityWithId[] | undefined, output: any[] | undefined) => {
+                        if (storedProcedureError) {
+                            reject(errorService.getError(AppError.QueryError));
+                        }
+                        else {
+                            execution_counter++;
+                            if (execution_counter === 2) {
+                                if (results !== undefined && results.length == 1) {
+                                    resolve(results[0]);
+                                }
+                                else {
+                                    reject(errorService.getError(AppError.QueryError));
+                                }
                             }
                         }
                     });

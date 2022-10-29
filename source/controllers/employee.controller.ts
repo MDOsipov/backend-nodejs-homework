@@ -328,6 +328,35 @@ const addEmployee = async (req: Request, res: Response, next: NextFunction) => {
         })
 }
 
+const addEmployeeWithProcedure = async (req: Request, res: Response, next: NextFunction) => {
+    const body: employeeWithPositionInStore = req.body;
+
+    employeeService.addEmployeeWithProcedure({
+        id: NON_EXISTENT_ID,
+        firstName: body.firstName,
+        lastName: body.lastName
+    }, (req as AuthenticatedRequest).userData.userId)
+        .then((result: Employee) => {
+            if (body.positionId !== undefined && body.storeId !== undefined) {
+                employeePositionService.addEmployeePosition({
+                    id: NON_EXISTENT_ID,
+                    employeeId: result.id,
+                    positionId: body.positionId,
+                    storeId: body.storeId
+                }, (req as AuthenticatedRequest).userData.userId)
+                    .then(() => {
+                        return res.status(200).json(result);
+                    })
+            }
+            else {
+                return res.status(200).json(result);
+            }
+        })
+        .catch((error: systemError) => {
+            return ResponseHelper.handleError(res, error);
+        })
+}
+
 const deleteEmployeeById = async (req: Request, res: Response, next: NextFunction) => {
     const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
 
@@ -353,5 +382,5 @@ const deleteEmployeeById = async (req: Request, res: Response, next: NextFunctio
 
 export default {
     getEmployees, getEmployeesByStoreId, getEmployeeById, updateEmployeeById, addEmployee, deleteEmployeeById, getEmployeesWithProcedure,
-    getEmployeeByIdWithProcedure, getEmployeesByStoreIdWithProcedure, updateEmployeeByIdWithProcedure
+    getEmployeeByIdWithProcedure, getEmployeesByStoreIdWithProcedure, updateEmployeeByIdWithProcedure, addEmployeeWithProcedure
 }
