@@ -9,6 +9,11 @@ export interface Store extends entityWithId {
     storeAddress: string;
 }
 
+export interface StoreWithInfo extends Store {
+    directorId: number,
+    employeeCount: number
+}
+
 export interface Employee extends entityWithId {
     firstName: string;
     lastName: string;

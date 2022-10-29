@@ -1,5 +1,5 @@
 import { Connection, SqlClient, Error } from 'msnodesqlv8';
-import { Employee, entityWithId, Store, systemError } from '../entities';
+import { Employee, entityWithId, Store, StoreWithInfo, systemError } from '../entities';
 import { ErrorCodes, General, DB_CONNECTION_STRING, Queries, DEF_USER_ID } from '../constants';
 import { SqlHelper } from '../helpers/sql.helper';
 import { ErrorService } from './error.service';
@@ -15,6 +15,11 @@ interface localEmployee {
     id: number;
     firstName: string;
     lastName: string;
+}
+
+interface localStoreWithInfo extends localStore {
+    director_id: number,
+    employee_count: number
 }
 
 interface IRetailService {
@@ -35,6 +40,23 @@ export class RetailService implements IRetailService {
                 .then((queryResult: localStore[]) => {
                     queryResult.forEach(store => {
                         result.push(this.parseLocalStore(store));
+                    });
+                    resolve(result);
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
+    public getStoresWithInfo(): Promise<StoreWithInfo[]> {
+        return new Promise<StoreWithInfo[]>((resolve, reject) => {
+            const result: StoreWithInfo[] = [];
+
+            SqlHelper.executeQueryArrayResult<localStoreWithInfo>(this.errorService, Queries.storesInfo, Status.Active, Status.Active)
+                .then((queryResult: localStoreWithInfo[]) => {
+                    queryResult.forEach(store => {
+                        result.push(this.parseLocalStoreWithInfo(store));
                     });
                     resolve(result);
                 })
@@ -135,6 +157,15 @@ export class RetailService implements IRetailService {
         return {
             id: local.id,
             storeAddress: local.store_address
+        }
+    }
+
+    private parseLocalStoreWithInfo(local: localStoreWithInfo): StoreWithInfo {
+        return {
+            id: local.id,
+            storeAddress: local.store_address,
+            directorId: local.director_id,
+            employeeCount: local.employee_count
         }
     }
 

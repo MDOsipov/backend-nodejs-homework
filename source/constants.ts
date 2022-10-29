@@ -21,6 +21,8 @@ export const DEF_USER_ID: number = 1;
 
 export class Queries {
     public static stores: string = "SELECT * FROM store WHERE status_id = ?";
+    public static storesInfo: string = "SELECT stores.id, stores.store_address, stores.employee_count, COALESCE(store_boss.boss_id, 0) AS director_id FROM  (SELECT s.id, s.store_address, COUNT(e.id) AS employee_count FROM  store s LEFT JOIN store_to_employee_to_position sep ON s.id = sep.store_id LEFT JOIN employee e ON sep.employee_id = e.id WHERE s.status_id = ? GROUP BY s.id, s.store_address) stores LEFT JOIN (SELECT s.id, s.store_address, e.id as boss_id FROM store s LEFT JOIN store_to_employee_to_position sep ON s.id = sep.store_id LEFT JOIN employee e ON sep.employee_id = e.id WHERE sep.position_id = 6 AND s.status_id = ?) store_boss ON stores.id = store_boss.id;";
+
     public static GetStoreByEmployeeId: string = "SELECT s.id, s.store_address FROM store s INNER JOIN store_to_employee_to_position sep ON s.id = sep.store_id INNER JOIN employee e ON sep.employee_id = e.id WHERE employee_id = ? AND sep.status_id = ?";
     public static GetStoreByUserId: string = "SELECT s.id, s.store_address FROM store s INNER JOIN store_to_employee_to_position sep ON s.id = sep.store_id INNER JOIN employee e ON sep.employee_id = e.id INNER JOIN [user] u ON u.employee_id = e.id WHERE u.id = ? AND sep.status_id = ?";
 

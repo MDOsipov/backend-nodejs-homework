@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ErrorCodes, NON_EXISTENT_ID } from '../constants';
-import { systemError, Store, Employee, AuthenticatedRequest } from '../entities';
+import { systemError, Store, Employee, AuthenticatedRequest, StoreWithInfo } from '../entities';
 import { AppError, Role } from '../enums';
 import { RequestHelper } from '../helpers/request.helper';
 import { ResponseHelper } from '../helpers/response.helper';
@@ -13,6 +13,18 @@ const retailService: RetailService = new RetailService(errorService);
 const getStores = async (req: Request, res: Response, next: NextFunction) => {
     retailService.getStore()
         .then((result: Store[]) => {
+            return res.status(200).json({
+                message: result
+            });
+        })
+        .catch((error: systemError) => {
+            return ResponseHelper.handleError(res, error);
+        });
+};
+
+const getStoresWithInfo = async (req: Request, res: Response, next: NextFunction) => {
+    retailService.getStoresWithInfo()
+        .then((result: StoreWithInfo[]) => {
             return res.status(200).json({
                 message: result
             });
@@ -220,4 +232,4 @@ const deleteStoreById = async (req: Request, res: Response, next: NextFunction) 
     }
 }
 
-export default { getStores, getStoreById, updateStoreById, addStore, deleteStoreById, getStoresByEmployeeId };
+export default { getStores, getStoreById, updateStoreById, addStore, deleteStoreById, getStoresByEmployeeId, getStoresWithInfo };
