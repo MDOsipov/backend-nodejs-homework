@@ -185,6 +185,18 @@ export class EmployeeService implements IEmployeeService {
         });
     }
 
+    public deleteEmployeeByIdWithProcedure(id: number, userId: number): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            SqlHelper.executeStoredProcedureNoResult<Employee>(this.errorService, 'sp_delete_employee_by_id', true, id, Status.Active, Status.NotActive, userId)
+                .then(() => {
+                    resolve();
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
     private parseLocalEmployee(local: localEmployee): Employee {
         return {
             id: local.id,

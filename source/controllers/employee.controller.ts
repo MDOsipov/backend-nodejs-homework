@@ -380,7 +380,31 @@ const deleteEmployeeById = async (req: Request, res: Response, next: NextFunctio
     }
 }
 
+const deleteEmployeeByIdWithProcedure = async (req: Request, res: Response, next: NextFunction) => {
+    const numericParamOrError: number | systemError = RequestHelper.ParseNumericInput(errorService, req.params.id);
+
+    if (typeof numericParamOrError === "number") {
+        if (numericParamOrError > 0) {
+            employeeService.deleteEmployeeByIdWithProcedure(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
+            employeePositionService.deleteEmployeePositionByEmployeeId(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
+                .then(() => {
+                    return res.sendStatus(200);
+                })
+                .catch((error: systemError) => {
+                    return ResponseHelper.handleError(res, error);
+                });
+        }
+        else {
+            return ResponseHelper.handleError(res, errorService.getError(AppError.General));
+        }
+    }
+    else {
+        return ResponseHelper.handleError(res, numericParamOrError)
+    }
+}
+
 export default {
     getEmployees, getEmployeesByStoreId, getEmployeeById, updateEmployeeById, addEmployee, deleteEmployeeById, getEmployeesWithProcedure,
-    getEmployeeByIdWithProcedure, getEmployeesByStoreIdWithProcedure, updateEmployeeByIdWithProcedure, addEmployeeWithProcedure
+    getEmployeeByIdWithProcedure, getEmployeesByStoreIdWithProcedure, updateEmployeeByIdWithProcedure, addEmployeeWithProcedure,
+    deleteEmployeeByIdWithProcedure
 }

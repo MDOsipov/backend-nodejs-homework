@@ -11,6 +11,6 @@ router.get('/employeesByStoreId/:id', middleware.verifyToken([Role.NetworkAdmini
 router.get('/:id', middleware.verifyToken([Role.NetworkAdministrator]), controller.getEmployeeByIdWithProcedure);
 router.put('/:id', middleware.verifyToken([Role.NetworkAdministrator]), controller.updateEmployeeByIdWithProcedure);
 router.post('/', middleware.verifyToken([Role.NetworkAdministrator]), controller.addEmployeeWithProcedure);
-router.delete('/:id', middleware.verifyToken([Role.NetworkAdministrator, Role.StoreManager]), controller.deleteEmployeeById);
+router.delete('/:id', middleware.verifyToken([Role.NetworkAdministrator, Role.StoreManager]), controller.deleteEmployeeByIdWithProcedure);
 
 export default { router };
