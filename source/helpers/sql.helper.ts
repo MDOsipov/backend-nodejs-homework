@@ -7,7 +7,6 @@ import { ErrorService } from "../services/error.service";
 
 export class SqlHelper {
     static sql: SqlClient = require("msnodesqlv8");
-    //static mssql: SqlClient = require("mssql");
 
     private static SqlConnection(errorService: ErrorService): Promise<Connection> {
         return new Promise<Connection>((resolve, reject) => {
@@ -20,39 +19,6 @@ export class SqlHelper {
                 }
             })
         })
-    }
-
-    private static treatInsertResult(errorService: ErrorService, original: entityWithId, queryResult: entityWithId[] | undefined, resolve: (result: entityWithId) => void, reject: (error: systemError) => void): void {
-        const badQueryError: systemError = errorService.getError(AppError.QueryError);
-
-        if (queryResult !== undefined) {
-            if (queryResult.length === 1) {
-                original.id = queryResult[0].id;
-                resolve(original);
-            }
-            else {
-                reject(badQueryError);
-            }
-        }
-        else {
-            reject(badQueryError);
-        }
-    }
-
-
-    private static treatInsertResult2(queryResult: entityWithId[] | undefined): number | null {
-
-        if (queryResult !== undefined) {
-            if (queryResult.length === 1) {
-                return queryResult[0].id;
-            }
-            else {
-                return null;
-            }
-        }
-        else {
-            return null;
-        }
     }
 
     public static executeQueryArrayResult<T>(errorService: ErrorService, query: string, ...params: (string | number)[]): Promise<T[]> {
@@ -299,33 +265,6 @@ export class SqlHelper {
                     reject(error);
                 });
         });
-    }
-
-    public static executeStoredProcedureWithOutput(errorService: ErrorService, procedureName: string, original: entityWithId, ...params: (string | number)[]): Promise<entityWithId> {
-        return new Promise<entityWithId>((resolve, reject) => {
-            SqlHelper.SqlConnection(errorService)
-                .then((connection: Connection) => {
-                    const pm: ProcedureManager = connection.procedureMgr();
-                    params.push(original.id);
-                    pm.callproc(procedureName, params, (storedProcedureError: Error | undefined, results: any[] | undefined, output: number[] | undefined) => {
-                        if (storedProcedureError) {
-                            reject(errorService.getError(AppError.QueryError));
-                        }
-                        else {
-                            if (output?.length === 2) {
-                                original.id = output[1];
-                                resolve(original);
-                            }
-                            else {
-                                reject(errorService.getError(AppError.QueryError));
-                            }
-                        }
-                    });
-                })
-                .catch((error: systemError) => {
-                    reject(error);
-                });
-        })
     }
 
     public static executeStoredProcedureAddNew(errorService: ErrorService, procedureName: string, ...params: (string | number)[]): Promise<entityWithId> {

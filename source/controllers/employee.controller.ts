@@ -270,7 +270,7 @@ const updateEmployeeByIdWithProcedure = async (req: Request, res: Response, next
             }, (req as AuthenticatedRequest).userData.userId)
                 .then((result: Employee) => {
                     if (body.positionId !== undefined && body.storeId !== undefined) {
-                        employeePositionService.updateEmployeePositionByEmployeeIdAndStoreId({
+                        employeePositionService.updateEmployeePositionByEmployeeIdAndStoreIdWithProcedure({
                             id: body.id,
                             positionId: body.positionId,
                             employeeId: numericParamOrError,
@@ -338,7 +338,7 @@ const addEmployeeWithProcedure = async (req: Request, res: Response, next: NextF
     }, (req as AuthenticatedRequest).userData.userId)
         .then((result: Employee) => {
             if (body.positionId !== undefined && body.storeId !== undefined) {
-                employeePositionService.addEmployeePosition({
+                employeePositionService.addEmployeePositionWithProcedure({
                     id: NON_EXISTENT_ID,
                     employeeId: result.id,
                     positionId: body.positionId,
@@ -386,7 +386,7 @@ const deleteEmployeeByIdWithProcedure = async (req: Request, res: Response, next
     if (typeof numericParamOrError === "number") {
         if (numericParamOrError > 0) {
             employeeService.deleteEmployeeByIdWithProcedure(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
-            employeePositionService.deleteEmployeePositionByEmployeeId(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
+            employeePositionService.deleteEmployeePositionByEmployeeIdWithProcedure(numericParamOrError, (req as AuthenticatedRequest).userData.userId)
                 .then(() => {
                     return res.sendStatus(200);
                 })
