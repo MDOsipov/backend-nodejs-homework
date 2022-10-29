@@ -1,6 +1,6 @@
 import e, { Request, Response, NextFunction } from 'express';
 import { ErrorCodes, NON_EXISTENT_ID } from '../constants';
-import { systemError, Store, Employee, AuthenticatedRequest } from '../entities';
+import { systemError, Store, Employee, AuthenticatedRequest, EmployeeWithBoss } from '../entities';
 import { AppError, Role } from '../enums';
 import { RequestHelper } from '../helpers/request.helper';
 import { ResponseHelper } from '../helpers/response.helper';
@@ -21,6 +21,7 @@ interface employeeWithPositionInStore extends Employee {
     storeId: number;
 }
 
+
 const getEmployees = async (req: Request, res: Response, next: NextFunction) => {
     employeeService.getEmployees()
         .then((result: Employee[]) => {
@@ -36,6 +37,18 @@ const getEmployees = async (req: Request, res: Response, next: NextFunction) => 
 const getEmployeesWithProcedure = async (req: Request, res: Response, next: NextFunction) => {
     employeeService.getEmployeesWithProcedure()
         .then((result: Employee[]) => {
+            return res.status(200).json({
+                message: result
+            });
+        })
+        .catch((error: systemError) => {
+            return ResponseHelper.handleError(res, error);
+        });
+};
+
+const getEmployeeBossesWithProcedure = async (req: Request, res: Response, next: NextFunction) => {
+    employeeService.getEmployeeBossesWithProcedure()
+        .then((result: EmployeeWithBoss[]) => {
             return res.status(200).json({
                 message: result
             });
@@ -406,5 +419,5 @@ const deleteEmployeeByIdWithProcedure = async (req: Request, res: Response, next
 export default {
     getEmployees, getEmployeesByStoreId, getEmployeeById, updateEmployeeById, addEmployee, deleteEmployeeById, getEmployeesWithProcedure,
     getEmployeeByIdWithProcedure, getEmployeesByStoreIdWithProcedure, updateEmployeeByIdWithProcedure, addEmployeeWithProcedure,
-    deleteEmployeeByIdWithProcedure
+    deleteEmployeeByIdWithProcedure, getEmployeeBossesWithProcedure
 }

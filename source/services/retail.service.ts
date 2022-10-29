@@ -9,8 +9,6 @@ import { DateHelper } from '../helpers/date.helper';
 interface localStore {
     id: number;
     store_address: string;
-    director_id: number;
-    employee_number: number;
 }
 
 interface localEmployee {
@@ -96,7 +94,7 @@ export class RetailService implements IRetailService {
     public updateStoreById(store: Store, userId: number): Promise<Store> {
         return new Promise<Store>((resolve, reject) => {
             const updateDate: Date = new Date();
-            const updateStoreById: string = `UPDATE store SET store_address = ${store.storeAddress ? "'" + store.storeAddress + "'" : 'store_address'}, director_id = ${store.directorId ? store.directorId : 'director_id'}, update_date = '${DateHelper.dateToString(updateDate)}',  update_user = ${userId} WHERE id = ${store.id} AND status_id = ${Status.Active}`;
+            const updateStoreById: string = `UPDATE store SET store_address = ${store.storeAddress ? "'" + store.storeAddress + "'" : 'store_address'}, update_date = '${DateHelper.dateToString(updateDate)}',  update_user = ${userId} WHERE id = ${store.id} AND status_id = ${Status.Active}`;
             SqlHelper.executeQueryNoResult(this.errorService, updateStoreById, false)
                 .then(() => {
                     resolve(store);
@@ -110,7 +108,7 @@ export class RetailService implements IRetailService {
     public addStore(store: Store, userId: number): Promise<Store> {
         return new Promise<Store>((resolve, reject) => {
             const createDate: Date = new Date();
-            SqlHelper.createNew(this.errorService, Queries.AddStore, store, store.storeAddress, store.directorId, Status.Active, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), userId, userId)
+            SqlHelper.createNew(this.errorService, Queries.AddStore, store, store.storeAddress, Status.Active, DateHelper.dateToString(createDate), DateHelper.dateToString(createDate), userId, userId)
                 .then((queryResult: entityWithId) => {
                     resolve(queryResult as Store);
                 })
@@ -136,9 +134,7 @@ export class RetailService implements IRetailService {
     private parseLocalStore(local: localStore): Store {
         return {
             id: local.id,
-            storeAddress: local.store_address,
-            directorId: local.director_id,
-            employeeNumber: local.employee_number
+            storeAddress: local.store_address
         }
     }
 

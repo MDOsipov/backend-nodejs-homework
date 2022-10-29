@@ -1,5 +1,5 @@
 import { Connection, SqlClient, Error } from 'msnodesqlv8';
-import { Employee, entityWithId, Store, systemError } from '../entities';
+import { Employee, EmployeeWithBoss, entityWithId, Store, systemError } from '../entities';
 import { ErrorCodes, General, DB_CONNECTION_STRING, Queries, DEF_USER_ID } from '../constants';
 import { SqlHelper } from '../helpers/sql.helper';
 import { ErrorService } from './error.service';
@@ -10,6 +10,10 @@ interface localEmployee {
     id: number;
     first_name: string;
     last_name: string;
+}
+
+interface localEmployeeBosses extends localEmployee {
+    boss_id: number;
 }
 
 interface IEmployeeService {
@@ -48,6 +52,23 @@ export class EmployeeService implements IEmployeeService {
                 .then((queryResult: localEmployee[]) => {
                     queryResult.forEach(employee => {
                         result.push(this.parseLocalEmployee(employee));
+                    });
+                    resolve(result);
+                })
+                .catch((error: systemError) => {
+                    reject(error);
+                });
+        });
+    }
+
+    public getEmployeeBossesWithProcedure(): Promise<EmployeeWithBoss[]> {
+        return new Promise<EmployeeWithBoss[]>((resolve, reject) => {
+            const result: EmployeeWithBoss[] = [];
+
+            SqlHelper.executeStoredProcedureArrayResult<localEmployeeBosses>(this.errorService, 'sp_get_employees_bosses', Status.Active)
+                .then((queryResult: localEmployeeBosses[]) => {
+                    queryResult.forEach(employee => {
+                        result.push(this.parseLocalEmployeeBosses(employee));
                     });
                     resolve(result);
                 })
@@ -202,6 +223,15 @@ export class EmployeeService implements IEmployeeService {
             id: local.id,
             firstName: local.first_name,
             lastName: local.last_name
+        }
+    }
+
+    private parseLocalEmployeeBosses(local: localEmployeeBosses): EmployeeWithBoss {
+        return {
+            id: local.id,
+            firstName: local.first_name,
+            lastName: local.last_name,
+            bossId: local.boss_id
         }
     }
 }

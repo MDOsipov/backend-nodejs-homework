@@ -6,9 +6,12 @@ const router = express.Router();
 
 // router.get('/', middleware.verifyToken([Role.NetworkAdministrator]), controller.getEmployees);
 router.get('/', middleware.verifyToken([Role.NetworkAdministrator]), controller.getEmployeesWithProcedure);
+router.get('/', middleware.verifyToken([Role.NetworkAdministrator]), controller.getEmployeesWithProcedure);
+
 
 router.get('/employeesByStoreId/:id', middleware.verifyToken([Role.NetworkAdministrator, Role.StoreManager]), controller.getEmployeesByStoreIdWithProcedure);
-router.get('/:id', middleware.verifyToken([Role.NetworkAdministrator]), controller.getEmployeeByIdWithProcedure);
+router.get('/employeeBosses', middleware.verifyToken([Role.NetworkAdministrator]), controller.getEmployeeBossesWithProcedure);
+
 router.put('/:id', middleware.verifyToken([Role.NetworkAdministrator]), controller.updateEmployeeByIdWithProcedure);
 router.post('/', middleware.verifyToken([Role.NetworkAdministrator]), controller.addEmployeeWithProcedure);
 router.delete('/:id', middleware.verifyToken([Role.NetworkAdministrator, Role.StoreManager]), controller.deleteEmployeeByIdWithProcedure);

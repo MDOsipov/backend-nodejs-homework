@@ -21,15 +21,15 @@ export const DEF_USER_ID: number = 1;
 
 export class Queries {
     public static stores: string = "SELECT * FROM store WHERE status_id = ?";
-    public static GetStoreByEmployeeId: string = "SELECT s.id, s.store_address, s.director_id, s.employee_number FROM store s INNER JOIN store_to_employee_to_position sep ON s.id = sep.store_id INNER JOIN employee e ON sep.employee_id = e.id WHERE employee_id = ? AND sep.status_id = ?";
-    public static GetStoreByUserId: string = "SELECT s.id, s.store_address, s.director_id, s.employee_number FROM store s INNER JOIN store_to_employee_to_position sep ON s.id = sep.store_id INNER JOIN employee e ON sep.employee_id = e.id INNER JOIN [user] u ON u.employee_id = e.id WHERE u.id = ? AND sep.status_id = ?";
+    public static GetStoreByEmployeeId: string = "SELECT s.id, s.store_address FROM store s INNER JOIN store_to_employee_to_position sep ON s.id = sep.store_id INNER JOIN employee e ON sep.employee_id = e.id WHERE employee_id = ? AND sep.status_id = ?";
+    public static GetStoreByUserId: string = "SELECT s.id, s.store_address FROM store s INNER JOIN store_to_employee_to_position sep ON s.id = sep.store_id INNER JOIN employee e ON sep.employee_id = e.id INNER JOIN [user] u ON u.employee_id = e.id WHERE u.id = ? AND sep.status_id = ?";
 
     public static storesById: string = "SELECT * FROM store WHERE id = ? AND status_id = ?";
 
-    public static updateStoreById: string = 'UPDATE store SET store_address = ?, director_id = ?, update_date = ?,  update_user = ? WHERE id = ? AND status_id = ?';
+    public static updateStoreById: string = 'UPDATE store SET store_address = ?, update_date = ?,  update_user = ? WHERE id = ? AND status_id = ?';
     public static SelectIdentity: string = "SELECT SCOPE_IDENTITY() AS id";
 
-    public static AddStore: string = 'INSERT INTO store (store_address, director_id, status_id, create_date, update_date, create_user, update_user) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    public static AddStore: string = 'INSERT INTO store (store_address, status_id, create_date, update_date, create_user, update_user) VALUES (?, ?, ?, ?, ?, ?)';
     public static DeleteStoreById: string = 'UPDATE store SET status_id = ?, update_date = ?, update_user = ? WHERE id = ? AND status_id = ?';
 
     // Получить юзеров по введеному логину

@@ -130,9 +130,7 @@ const updateStoreById = async (req: Request, res: Response, next: NextFunction) 
 
                             retailService.updateStoreById({
                                 id: numericParamOrError,
-                                storeAddress: store_body.storeAddress,
-                                directorId: store_body.directorId,
-                                employeeNumber: store_body.employeeNumber
+                                storeAddress: store_body.storeAddress
                             }, (req as AuthenticatedRequest).userData.userId)
                                 .then((result: Store) => {
                                     return res.status(200).json({
@@ -163,9 +161,7 @@ const updateStoreById = async (req: Request, res: Response, next: NextFunction) 
 
                 retailService.updateStoreById({
                     id: numericParamOrError,
-                    storeAddress: store_body.storeAddress,
-                    directorId: store_body.directorId,
-                    employeeNumber: store_body.employeeNumber
+                    storeAddress: store_body.storeAddress
                 }, (req as AuthenticatedRequest).userData.userId)
                     .then((result: Store) => {
                         return res.status(200).json({
@@ -192,9 +188,7 @@ const addStore = async (req: Request, res: Response, next: NextFunction) => {
 
     retailService.addStore({
         id: NON_EXISTENT_ID,
-        storeAddress: body.storeAddress,
-        directorId: body.directorId,
-        employeeNumber: body.employeeNumber
+        storeAddress: body.storeAddress
     }, (req as AuthenticatedRequest).userData.userId)
         .then((result: Store) => {
             return res.status(200).json(result);
